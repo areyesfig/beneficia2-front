@@ -1,0 +1,24 @@
+import axios from "axios";
+
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://api.example.com";
+
+export const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 15_000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+apiClient.interceptors.request.use((config) => {
+  // Aquí puedes adjuntar token: config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Log o manejo global de errores
+    return Promise.reject(error);
+  }
+);
