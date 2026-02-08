@@ -17,13 +17,13 @@ export function Input({
   return (
     <View>
       {label ? (
-        <Text className="mb-1.5 text-sm font-medium text-gray-700">{label}</Text>
+        <Text className="mb-1.5 text-sm font-medium text-slate-600">{label}</Text>
       ) : null}
       <TextInput
-        className={`rounded-xl border bg-white px-4 py-3 text-base text-gray-900 ${
-          hasError ? "border-red-500" : "border-gray-300"
+        className={`rounded-2xl border bg-white px-4 py-3 text-base text-slate-800 ${
+          hasError ? "border-red-500" : "border-teal-200"
         } ${className ?? ""}`}
-        placeholderTextColor="#9ca3af"
+        placeholderTextColor="#94a3b8"
         {...props}
       />
       {error ? (

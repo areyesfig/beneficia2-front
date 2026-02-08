@@ -13,12 +13,14 @@ interface BenefitsFeedProps {
 
 export function BenefitsFeed({ data, onPostular }: BenefitsFeedProps) {
   const renderItem = ({ item }: { item: BenefitItem }) => (
-    <View className="mb-3 px-1">
+    <View className="mb-5">
       <BenefitCard
+        id={item.id}
         title={item.title}
         amount={item.amount}
         deadline={item.deadline}
         status={item.status}
+        category={item.category}
         onPostular={onPostular ? () => onPostular(item) : undefined}
       />
     </View>
@@ -29,8 +31,8 @@ export function BenefitsFeed({ data, onPostular }: BenefitsFeedProps) {
       data={data}
       renderItem={renderItem}
       estimatedItemSize={140}
-      keyExtractor={(item, index) => `${item.title}-${index}`}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
+      keyExtractor={(item, index) => item.id ? `${item.id}` : `${item.title}-${index}`}
+      contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 20, paddingBottom: 32 }}
       showsVerticalScrollIndicator={false}
     />
   );

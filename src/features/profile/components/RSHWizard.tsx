@@ -77,10 +77,10 @@ export function RSHWizard() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-white"
+      className="flex-1 bg-teal-50"
     >
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-teal-50"
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
       >
@@ -91,27 +91,31 @@ export function RSHWizard() {
               <View className="items-center">
                 <View
                   className={`h-10 w-10 items-center justify-center rounded-full ${
-                    s === step ? 'bg-blue-600' : s < step ? 'bg-blue-400' : 'bg-gray-200'
+                    s === step
+                      ? 'bg-teal-600'
+                      : s < step
+                        ? 'bg-teal-400'
+                        : 'bg-teal-100'
                   }`}
                 >
                   <Text
-                    className={`font-semibold ${s <= step ? 'text-white' : 'text-gray-500'}`}
+                    className={`font-semibold ${s <= step ? 'text-white' : 'text-slate-500'}`}
                   >
                     {s}
                   </Text>
                 </View>
-                <Text className="mt-1 text-xs text-gray-500">Paso {s}</Text>
+                <Text className="mt-1 text-xs text-slate-500">Paso {s}</Text>
               </View>
-              {s < 3 && <View className="mx-2 h-0.5 w-12 bg-gray-200" />}
+              {s < 3 && <View className="mx-2 h-0.5 w-12 bg-teal-200" />}
             </React.Fragment>
           ))}
         </View>
 
         {/* Paso 1: RUT */}
         {step === 1 && (
-          <View className="gap-4">
-            <Text className="text-lg font-semibold text-gray-900">RUT del titular</Text>
-            <Text className="text-gray-600">
+          <View className="gap-4 rounded-3xl bg-white p-5 shadow-lg">
+            <Text className="text-lg font-bold text-slate-900">RUT del titular</Text>
+            <Text className="text-slate-500">
               Ingresa el RUT de quien postula al Registro Social de Hogares.
             </Text>
             <Controller
@@ -120,11 +124,11 @@ export function RSHWizard() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
                   <TextInput
-                    className={`rounded-xl border bg-white px-4 py-3 text-base text-gray-900 ${
-                      errors.rut ? 'border-red-500' : 'border-gray-300'
+                    className={`rounded-2xl border bg-white px-4 py-3 text-base text-slate-900 ${
+                      errors.rut ? 'border-red-500' : 'border-teal-200'
                     }`}
                     placeholder="12.345.678-9"
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor="#94a3b8"
                     value={value}
                     onChangeText={(text) => onChange(formatRutInput(text))}
                     onBlur={onBlur}
@@ -143,9 +147,9 @@ export function RSHWizard() {
 
         {/* Paso 2: Tramo RSH */}
         {step === 2 && (
-          <View className="gap-4">
-            <Text className="text-lg font-semibold text-gray-900">Tramo RSH</Text>
-            <Text className="text-gray-600">
+          <View className="gap-4 rounded-3xl bg-white p-5 shadow-lg">
+            <Text className="text-lg font-bold text-slate-900">Tramo RSH</Text>
+            <Text className="text-slate-500">
               Selecciona el tramo que corresponde a tu grupo familiar.
             </Text>
             <View className="flex-row flex-wrap gap-3">
@@ -160,12 +164,12 @@ export function RSHWizard() {
                       <Pressable
                         onPress={() => onChange(t)}
                         className={`rounded-full px-6 py-3 ${
-                          selected ? 'bg-blue-600' : 'bg-gray-100'
+                          selected ? 'bg-teal-600' : 'bg-teal-50 border border-teal-100'
                         }`}
                       >
                         <Text
                           className={`text-base font-semibold ${
-                            selected ? 'text-white' : 'text-gray-700'
+                            selected ? 'text-white' : 'text-teal-800'
                           }`}
                         >
                           {t}%
@@ -181,9 +185,9 @@ export function RSHWizard() {
 
         {/* Paso 3: Cargas familiares */}
         {step === 3 && (
-          <View className="gap-4">
-            <Text className="text-lg font-semibold text-gray-900">Cargas familiares</Text>
-            <Text className="text-gray-600">
+          <View className="gap-4 rounded-3xl bg-white p-5 shadow-lg">
+            <Text className="text-lg font-bold text-slate-900">Cargas familiares</Text>
+            <Text className="text-slate-500">
               Número de personas que dependen económicamente de ti (hijos, cónyuge, etc.).
             </Text>
             <Controller
@@ -195,30 +199,30 @@ export function RSHWizard() {
                     onPress={() => onChange(Math.max(MIN_CARGAS, value - 1))}
                     disabled={value <= MIN_CARGAS}
                     className={`h-14 w-14 items-center justify-center rounded-full ${
-                      value <= MIN_CARGAS ? 'bg-gray-200' : 'bg-blue-600'
+                      value <= MIN_CARGAS ? 'bg-teal-100' : 'bg-teal-600'
                     }`}
                   >
                     <Text
                       className={`text-2xl font-bold ${
-                        value <= MIN_CARGAS ? 'text-gray-400' : 'text-white'
+                        value <= MIN_CARGAS ? 'text-teal-400' : 'text-white'
                       }`}
                     >
                       −
                     </Text>
                   </Pressable>
-                  <Text className="min-w-[3rem] text-center text-3xl font-bold text-gray-900">
+                  <Text className="min-w-[3rem] text-center text-3xl font-bold text-slate-900">
                     {value}
                   </Text>
                   <Pressable
                     onPress={() => onChange(Math.min(MAX_CARGAS, value + 1))}
                     disabled={value >= MAX_CARGAS}
                     className={`h-14 w-14 items-center justify-center rounded-full ${
-                      value >= MAX_CARGAS ? 'bg-gray-200' : 'bg-blue-600'
+                      value >= MAX_CARGAS ? 'bg-teal-100' : 'bg-teal-600'
                     }`}
                   >
                     <Text
                       className={`text-2xl font-bold ${
-                        value >= MAX_CARGAS ? 'text-gray-400' : 'text-white'
+                        value >= MAX_CARGAS ? 'text-teal-400' : 'text-white'
                       }`}
                     >
                       +
@@ -235,14 +239,14 @@ export function RSHWizard() {
           {step > 1 && (
             <Pressable
               onPress={goBack}
-              className="flex-1 items-center rounded-xl border border-gray-300 bg-white py-3.5"
+              className="flex-1 items-center rounded-2xl border border-teal-200 bg-white py-3.5"
             >
-              <Text className="font-semibold text-gray-700">Atrás</Text>
+              <Text className="font-semibold text-slate-700">Atrás</Text>
             </Pressable>
           )}
           <Pressable
             onPress={goNext}
-            className={`rounded-xl bg-blue-600 py-3.5 ${step > 1 ? 'flex-1' : 'flex-1'}`}
+            className="flex-1 rounded-2xl bg-teal-600 py-3.5"
             style={{ alignItems: 'center' }}
           >
             <Text className="font-semibold text-white">

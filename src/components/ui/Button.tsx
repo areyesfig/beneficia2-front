@@ -9,15 +9,15 @@ interface ButtonProps extends Omit<PressableProps, "children"> {
 }
 
 const containerStyles: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600 active:opacity-90",
-  secondary: "bg-gray-100 active:opacity-90",
-  outline: "border border-gray-300 bg-white active:opacity-90",
+  primary: "bg-teal-600 active:opacity-90",
+  secondary: "bg-teal-50 border border-teal-100 active:opacity-90",
+  outline: "border border-teal-200 bg-white active:opacity-90",
 };
 
 const textStyles: Record<ButtonVariant, string> = {
   primary: "text-white",
-  secondary: "text-gray-800",
-  outline: "text-gray-700",
+  secondary: "text-teal-800",
+  outline: "text-teal-700",
 };
 
 export function Button({
@@ -27,7 +27,7 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const base = "rounded-xl py-3.5 items-center justify-center";
+  const base = "rounded-2xl py-3.5 items-center justify-center";
   const variantClass = containerStyles[variant];
   const textClass = textStyles[variant];
 

@@ -68,8 +68,9 @@ function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
     match.status === 'ELIGIBLE' || match.status === 'MISSING_DATA'
       ? match.status
       : 'MISSING_DATA';
+  const category = b.category;
 
-  return { title, amount, deadline, status };
+  return { id: b.id, title, amount, deadline, status, category };
 }
 
 export const useUserMatches = () => {
@@ -90,4 +91,14 @@ export const useUserMatches = () => {
 export function mapMatchesToBenefitItems(matches: MatchResult[] | undefined): BenefitItem[] {
   if (!matches || !Array.isArray(matches)) return [];
   return matches.map(mapMatchToBenefitItem);
+}
+
+/** Hook que devuelve el match de un beneficio por id (reutiliza useUserMatches) */
+export function useBenefitDetail(id: string | undefined) {
+  const { data: matches, isLoading, error } = useUserMatches();
+  const match =
+    id && matches?.length
+      ? matches.find((m) => m.benefit.id === id) ?? null
+      : null;
+  return { match, isLoading, error };
 }
