@@ -1,7 +1,7 @@
-import { useBenefits } from "@/api";
 import { BenefitsFeed } from "@/features/benefits/components/BenefitsFeed";
 import type { BenefitItem } from "@/features/benefits/components/BenefitsFeed";
 import { View, ActivityIndicator } from "react-native";
+import { useUserMatches, mapMatchesToBenefitItems } from "@/features/benefits/api/useUserMatches";
 
 const MOCK_BENEFITS: BenefitItem[] = [
   { title: "Bono al Trabajo de la Mujer", amount: 98750, deadline: "31 Mar 2025", status: "ELIGIBLE" },
@@ -10,10 +10,11 @@ const MOCK_BENEFITS: BenefitItem[] = [
 ];
 
 export default function BenefitsScreen() {
-  const { data, isLoading } = useBenefits();
-  const benefits = data ?? MOCK_BENEFITS;
+  const { data: matches, isLoading } = useUserMatches();
+  const mapped = mapMatchesToBenefitItems(matches);
+  const benefits = mapped.length > 0 ? mapped : MOCK_BENEFITS;
 
-  if (isLoading && !data) {
+  if (isLoading && !matches) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#2563eb" />

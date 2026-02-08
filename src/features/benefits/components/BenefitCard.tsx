@@ -6,7 +6,7 @@ export type BenefitStatus = 'ELIGIBLE' | 'MISSING_DATA';
 
 export interface BenefitCardProps {
   title: string;
-  amount: number;
+  amount?: number | null;
   deadline: string;
   status: BenefitStatus;
   onPostular?: () => void;
