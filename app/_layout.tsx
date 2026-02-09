@@ -23,7 +23,12 @@ export default function RootLayout() {
               contentStyle: { backgroundColor: "#f0fdfa" },
             }}
             >
-              <Stack.Screen name="index" options={{ title: "Inicio" }} />
+              <Stack.Screen name="index" options={{ title: "Inicio", headerShown: false }} />
+              <Stack.Screen
+                name="wizard"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="home" options={{ title: "Inicio" }} />
               <Stack.Screen
                 name="benefits"
                 options={{

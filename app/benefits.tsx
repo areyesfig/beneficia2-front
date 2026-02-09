@@ -5,33 +5,30 @@ import { useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useState, useMemo } from "react";
 import { useUserMatches, mapMatchesToBenefitItems } from "@/features/benefits/api/useUserMatches";
+import {
+  BENEFIT_CATEGORIES,
+  normalizeCategoryForFilter,
+  type BenefitCategoryId,
+} from "@/constants/categories";
 
 /** Pon en true para probar la UI sin depender del API; false para usar datos reales */
 const USE_MOCK_FOR_TESTING = true;
 
+/** Mock con categorías alineadas al ENUM del backend para que los chips filtren bien */
 const MOCK_BENEFITS: BenefitItem[] = [
   { id: "mock-1", title: "Bono al Trabajo de la Mujer", amount: 98750, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
   { id: "mock-2", title: "Subsidio Único Familiar", amount: 45000, deadline: "15 Abr 2025", status: "MISSING_DATA", category: "BONOS_ESTATALES" },
-  { id: "mock-3", title: "Bono por Asistencia Escolar", amount: 21000, deadline: "30 Abr 2025", status: "ELIGIBLE", category: "EDUCACION" },
+  { id: "mock-3", title: "Bono por Asistencia Escolar", amount: 21000, deadline: "30 Abr 2025", status: "ELIGIBLE", category: "JUVENTUD_Y_ESTUDIOS" },
   { id: "mock-4", title: "Subsidio de Arriendo", amount: 120000, deadline: "30 Jun 2025", status: "ELIGIBLE", category: "VIVIENDA" },
   { id: "mock-5", title: "Bono Marzo (Aporte Familiar)", amount: 61793, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
   { id: "mock-6", title: "Subsidio al Pago del Consumo de Agua Potable", amount: 25000, deadline: "15 Dic 2025", status: "MISSING_DATA", category: "VIVIENDA" },
-  { id: "mock-7", title: "Fondo de Salud para Fonasa", amount: null, deadline: "31 Dic 2025", status: "ELIGIBLE", category: "SALUD" },
+  { id: "mock-7", title: "Fondo de Salud para Fonasa", amount: null, deadline: "31 Dic 2025", status: "ELIGIBLE", category: "SALUD_Y_CUIDADOS" },
   { id: "mock-8", title: "Capital Semilla Emprendimiento", amount: 500000, deadline: "30 Sep 2025", status: "MISSING_DATA", category: "EMPRENDIMIENTO" },
 ];
 
-const FILTER_CHIPS = ["Todos", "Vivienda", "Salud", "Educación", "Emprendimiento"] as const;
-
-const CHIP_TO_CATEGORY: Record<string, string> = {
-  Vivienda: "VIVIENDA",
-  Salud: "SALUD",
-  Educación: "EDUCACION",
-  Emprendimiento: "EMPRENDIMIENTO",
-};
-
 export default function BenefitsScreen() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
+  const [selectedCategory, setSelectedCategory] = useState<BenefitCategoryId>("ALL");
   const { data: matches, isLoading } = useUserMatches();
   const mapped = mapMatchesToBenefitItems(matches);
   const allBenefits = USE_MOCK_FOR_TESTING
@@ -40,12 +37,11 @@ export default function BenefitsScreen() {
       ? mapped
       : MOCK_BENEFITS;
 
-  const benefits = useMemo(() => {
-    if (selectedCategory === "Todos") return allBenefits;
-    const categoryValue = CHIP_TO_CATEGORY[selectedCategory];
-    if (!categoryValue) return allBenefits;
+  const filteredBenefits = useMemo(() => {
+    if (!allBenefits.length) return [];
+    if (selectedCategory === "ALL") return allBenefits;
     return allBenefits.filter(
-      (item) => (item.category ?? "").toUpperCase() === categoryValue
+      (item) => normalizeCategoryForFilter(item.category) === selectedCategory
     );
   }, [allBenefits, selectedCategory]);
 
@@ -77,8 +73,8 @@ export default function BenefitsScreen() {
         <Text className="text-base text-slate-600">Tus beneficios disponibles</Text>
       </View>
 
-      {/* Filtros (chips) horizontal - compactos, altura fija */}
-      <View className="h-10 justify-center">
+      {/* Smart Chips: lista horizontal deslizante (estilo Netflix/YouTube) */}
+      <View className="border-b border-teal-100 bg-white pb-4 shadow-sm">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -88,21 +84,24 @@ export default function BenefitsScreen() {
             alignItems: "center",
             gap: 8,
           }}
+          className="flex-row"
         >
-          {FILTER_CHIPS.map((chip) => {
-            const isActive = selectedCategory === chip;
+          {BENEFIT_CATEGORIES.map((category) => {
+            const isActive = selectedCategory === category.id;
             return (
               <Pressable
-                key={chip}
-                onPress={() => setSelectedCategory(chip)}
+                key={category.id}
+                onPress={() => setSelectedCategory(category.id)}
                 style={{ marginRight: 8 }}
-                className={`h-8 min-w-0 flex-row items-center justify-center rounded-full px-3 ${isActive ? "bg-teal-600" : "bg-slate-100"}`}
+                className={`min-w-0 flex-row items-center justify-center rounded-full border px-4 py-2.5 ${
+                  isActive ? "border-teal-600 bg-teal-600" : "border-slate-200 bg-white"
+                }`}
               >
                 <Text
                   numberOfLines={1}
-                  className={`text-xs font-medium ${isActive ? "text-white" : "text-slate-700"}`}
+                  className={`font-bold ${isActive ? "text-white" : "text-slate-600"}`}
                 >
-                  {chip}
+                  {category.icon}  {category.label}
                 </Text>
               </Pressable>
             );
@@ -112,10 +111,21 @@ export default function BenefitsScreen() {
 
       <View className="flex-1">
         <BenefitsFeed
-          data={benefits}
+          data={filteredBenefits}
           onPostular={(item) => {
             if (item.id) router.push(`/benefit/${item.id}` as const);
           }}
+          ListEmptyComponent={
+            <View className="mt-10 items-center px-4">
+              <Text className="text-4xl">🤷‍♂️</Text>
+              <Text className="mt-2 text-center text-slate-500">
+                No encontramos beneficios en esta categoría para tu perfil.
+              </Text>
+              <Pressable onPress={() => setSelectedCategory("ALL")} className="mt-4">
+                <Text className="font-bold text-teal-600">Ver todos</Text>
+              </Pressable>
+            </View>
+          }
         />
       </View>
     </View>

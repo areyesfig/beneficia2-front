@@ -6,6 +6,11 @@ import {
   Gift,
   CircleDollarSign,
   ChevronRight,
+  GraduationCap,
+  Heart,
+  Baby,
+  User,
+  Rocket,
   type LucideIcon,
 } from 'lucide-react-native';
 import { formatCurrency } from '@/utils/format-currency';
@@ -25,12 +30,20 @@ export interface BenefitCardProps {
 const CATEGORY_ICON: Record<string, { Icon: LucideIcon; bg: string; color: string }> = {
   VIVIENDA: { Icon: Home, bg: 'bg-teal-100', color: '#0d9488' },
   BONOS_ESTATALES: { Icon: Gift, bg: 'bg-teal-100', color: '#0f766e' },
+  SALUD_Y_CUIDADOS: { Icon: Heart, bg: 'bg-teal-100', color: '#0d9488' },
+  SALUD: { Icon: Heart, bg: 'bg-teal-100', color: '#0d9488' },
+  NINEZ_Y_ADOLESCENCIA: { Icon: Baby, bg: 'bg-teal-100', color: '#0f766e' },
+  JUVENTUD_Y_ESTUDIOS: { Icon: GraduationCap, bg: 'bg-teal-100', color: '#0d9488' },
+  EDUCACION: { Icon: GraduationCap, bg: 'bg-teal-100', color: '#0d9488' },
+  ADULTO_MAYOR: { Icon: User, bg: 'bg-teal-100', color: '#0f766e' },
+  EMPRENDIMIENTO: { Icon: Rocket, bg: 'bg-teal-100', color: '#0d9488' },
   default: { Icon: CircleDollarSign, bg: 'bg-slate-100', color: '#64748b' },
 };
 
 function getCategoryStyle(category?: string) {
   if (!category) return CATEGORY_ICON.default;
-  return CATEGORY_ICON[category] ?? CATEGORY_ICON.default;
+  const key = category.toUpperCase().replace(/\s+/g, '_');
+  return CATEGORY_ICON[key] ?? CATEGORY_ICON.default;
 }
 
 export function BenefitCard({

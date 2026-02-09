@@ -1,10 +1,9 @@
-import { RSHWizard } from "@/features/profile/components/RSHWizard";
-import { View } from "react-native";
+import { Redirect } from "expo-router";
 
+/**
+ * Registro Social de Hogares unificado con el wizard de onboarding.
+ * Redirige al wizard para que el usuario complete o actualice su perfil (nombre, edad, RUT, RSH, cargas, ingresos).
+ */
 export default function RSHScreen() {
-  return (
-    <View className="flex-1 bg-teal-50">
-      <RSHWizard />
-    </View>
-  );
+  return <Redirect href="/wizard" />;
 }
