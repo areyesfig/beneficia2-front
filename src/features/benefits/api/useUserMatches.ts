@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { API_URL } from '@/config/api';
+import { getCurrentUserId, ANONYMOUS_DEV_USER_ID } from '@/config/env';
 import type { BenefitItem } from '@/features/benefits/components/BenefitsFeed';
 import type { BenefitStatus } from '@/features/benefits/components/BenefitCard';
 
@@ -34,8 +35,6 @@ export interface MatchResult {
   status: 'ELIGIBLE' | 'MISSING_DATA' | string;
   missingRequirements?: string[];
 }
-
-const TEST_USER_ID = '375a6717-f98f-47b2-a309-87eccc80388c';
 
 /** Extrae monto de descripciones como "Monto de $61.793 por carga..." */
 function parseAmountFromDescription(description: string | undefined): number | null {
@@ -73,14 +72,20 @@ function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
   return { id: b.id, title, amount, deadline, status, category };
 }
 
-export const useUserMatches = () => {
-  return useQuery({
-    queryKey: ['matches', TEST_USER_ID],
-    queryFn: async () => {
-      console.log(`📡 Fetching: ${API_URL}/benefits/${TEST_USER_ID}/match`);
+function getUserId(): string {
+  return getCurrentUserId() ?? ANONYMOUS_DEV_USER_ID;
+}
 
+export const useUserMatches = () => {
+  const userId = getUserId();
+  return useQuery({
+    queryKey: ['matches', userId],
+    queryFn: async () => {
+      if (__DEV__) {
+        console.log('📡 Fetching benefits match');
+      }
       const { data } = await axios.get<MatchResult[]>(
-        `${API_URL}/benefits/${TEST_USER_ID}/match`
+        `${API_URL}/benefits/${userId}/match`
       );
       return data;
     },
@@ -98,7 +103,7 @@ export function useBenefitDetail(id: string | undefined) {
   const { data: matches, isLoading, error } = useUserMatches();
   const match =
     id && matches?.length
-      ? matches.find((m) => m.benefit.id === id) ?? null
+      ? matches.find((m) => String(m.benefit.id) === String(id)) ?? null
       : null;
   return { match, isLoading, error };
 }

@@ -1,10 +1,8 @@
 import axios from "axios";
 import { API_URL } from "../config/api";
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? API_URL ?? "https://api.example.com";
-
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
   timeout: 15_000,
   headers: {
     "Content-Type": "application/json",

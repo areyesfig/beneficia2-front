@@ -16,6 +16,7 @@ import { z } from "zod";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Link } from "expo-router";
 import { API_URL } from "@/config/api";
+import { getCurrentUserId, ANONYMOUS_DEV_USER_ID } from "@/config/env";
 import { validateRut, formatRutInput } from "@/utils/rut-validator";
 
 const TRAMOS_RSH = [40, 50, 60, 70, 80, 90, 100] as const;
@@ -47,7 +48,6 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-const TEST_USER_ID = "test-user-1";
 const TOTAL_STEPS = 6;
 
 export default function WizardScreen() {
@@ -91,7 +91,8 @@ export default function WizardScreen() {
         // cargasFamiliares: data.cargasFamiliares,
       };
 
-      const response = await fetch(`${API_URL}/profile/${TEST_USER_ID}`, {
+      const userId = getCurrentUserId() ?? ANONYMOUS_DEV_USER_ID;
+      const response = await fetch(`${API_URL}/profile/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
