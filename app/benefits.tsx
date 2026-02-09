@@ -6,10 +6,18 @@ import { ChevronLeft } from "lucide-react-native";
 import { useState, useMemo } from "react";
 import { useUserMatches, mapMatchesToBenefitItems } from "@/features/benefits/api/useUserMatches";
 
+/** Pon en true para probar la UI sin depender del API; false para usar datos reales */
+const USE_MOCK_FOR_TESTING = true;
+
 const MOCK_BENEFITS: BenefitItem[] = [
-  { id: "mock-1", title: "Bono al Trabajo de la Mujer", amount: 98750, deadline: "31 Mar 2025", status: "ELIGIBLE" },
-  { id: "mock-2", title: "Subsidio Único Familiar", amount: 45000, deadline: "15 Abr 2025", status: "MISSING_DATA" },
-  { id: "mock-3", title: "Bono por Asistencia Escolar", amount: 21000, deadline: "30 Abr 2025", status: "ELIGIBLE" },
+  { id: "mock-1", title: "Bono al Trabajo de la Mujer", amount: 98750, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
+  { id: "mock-2", title: "Subsidio Único Familiar", amount: 45000, deadline: "15 Abr 2025", status: "MISSING_DATA", category: "BONOS_ESTATALES" },
+  { id: "mock-3", title: "Bono por Asistencia Escolar", amount: 21000, deadline: "30 Abr 2025", status: "ELIGIBLE", category: "EDUCACION" },
+  { id: "mock-4", title: "Subsidio de Arriendo", amount: 120000, deadline: "30 Jun 2025", status: "ELIGIBLE", category: "VIVIENDA" },
+  { id: "mock-5", title: "Bono Marzo (Aporte Familiar)", amount: 61793, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
+  { id: "mock-6", title: "Subsidio al Pago del Consumo de Agua Potable", amount: 25000, deadline: "15 Dic 2025", status: "MISSING_DATA", category: "VIVIENDA" },
+  { id: "mock-7", title: "Fondo de Salud para Fonasa", amount: null, deadline: "31 Dic 2025", status: "ELIGIBLE", category: "SALUD" },
+  { id: "mock-8", title: "Capital Semilla Emprendimiento", amount: 500000, deadline: "30 Sep 2025", status: "MISSING_DATA", category: "EMPRENDIMIENTO" },
 ];
 
 const FILTER_CHIPS = ["Todos", "Vivienda", "Salud", "Educación", "Emprendimiento"] as const;
@@ -26,7 +34,11 @@ export default function BenefitsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
   const { data: matches, isLoading } = useUserMatches();
   const mapped = mapMatchesToBenefitItems(matches);
-  const allBenefits = mapped.length > 0 ? mapped : MOCK_BENEFITS;
+  const allBenefits = USE_MOCK_FOR_TESTING
+    ? MOCK_BENEFITS
+    : mapped.length > 0
+      ? mapped
+      : MOCK_BENEFITS;
 
   const benefits = useMemo(() => {
     if (selectedCategory === "Todos") return allBenefits;
@@ -37,7 +49,7 @@ export default function BenefitsScreen() {
     );
   }, [allBenefits, selectedCategory]);
 
-  if (isLoading && !matches) {
+  if (!USE_MOCK_FOR_TESTING && isLoading && !matches) {
     return (
       <View className="flex-1 items-center justify-center bg-teal-50">
         <ActivityIndicator size="large" color="#0d9488" />
