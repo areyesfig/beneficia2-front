@@ -9,10 +9,12 @@ export type BenefitItem = BenefitCardProps;
 interface BenefitsFeedProps {
   data: BenefitItem[];
   onPostular?: (item: BenefitItem) => void;
+  /** Gamificación: notifica "Postulé" u "Ocultar" por beneficio (dispara confetti en pantalla lista) */
+  onAction?: (benefitId: string, status: 'APPLIED' | 'DISMISSED') => void;
   ListEmptyComponent?: React.ComponentType | React.ReactElement | null;
 }
 
-export function BenefitsFeed({ data, onPostular, ListEmptyComponent }: BenefitsFeedProps) {
+export function BenefitsFeed({ data, onPostular, onAction, ListEmptyComponent }: BenefitsFeedProps) {
   const renderItem = ({ item }: { item: BenefitItem }) => (
     <View className="mb-5">
       <BenefitCard
@@ -22,7 +24,9 @@ export function BenefitsFeed({ data, onPostular, ListEmptyComponent }: BenefitsF
         deadline={item.deadline}
         status={item.status}
         category={item.category}
+        urlApply={item.urlApply}
         onPostular={onPostular ? () => onPostular(item) : undefined}
+        onAction={onAction}
       />
     </View>
   );

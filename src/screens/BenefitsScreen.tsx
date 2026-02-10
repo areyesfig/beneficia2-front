@@ -4,12 +4,15 @@ import { View, Text, ActivityIndicator, Pressable, ScrollView } from "react-nati
 import { useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useState, useMemo } from "react";
+import ConfettiCannon from "react-native-confetti-cannon";
 import { useUserMatches, mapMatchesToBenefitItems } from "@/features/benefits/api/useUserMatches";
 import {
   BENEFIT_CATEGORIES,
   normalizeCategoryForFilter,
   type BenefitCategoryId,
 } from "@/constants/categories";
+import { API_URL } from "@/config/api";
+import { getCurrentUserId, ANONYMOUS_DEV_USER_ID } from "@/config/env";
 
 /** Pon en true para probar la UI sin depender del API; false para usar datos reales */
 const USE_MOCK_FOR_TESTING = true;
@@ -29,6 +32,7 @@ const MOCK_BENEFITS: BenefitItem[] = [
 export default function BenefitsScreen() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<BenefitCategoryId>("ALL");
+  const [explosion, setExplosion] = useState(false);
   const { data: matches, isLoading } = useUserMatches();
   const mapped = mapMatchesToBenefitItems(matches);
   const allBenefits = USE_MOCK_FOR_TESTING
@@ -36,6 +40,24 @@ export default function BenefitsScreen() {
     : mapped.length > 0
       ? mapped
       : MOCK_BENEFITS;
+
+  const userId = getCurrentUserId() ?? ANONYMOUS_DEV_USER_ID;
+
+  const handleAction = async (benefitId: string, status: "APPLIED" | "DISMISSED") => {
+    if (status === "APPLIED") {
+      setExplosion(true);
+      setTimeout(() => setExplosion(false), 2000);
+    }
+    try {
+      await fetch(`${API_URL}/applications/${userId}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ benefitId, status }),
+      });
+    } catch (e) {
+      if (__DEV__) console.warn("Error guardando estado de postulación:", e);
+    }
+  };
 
   const filteredBenefits = useMemo(() => {
     if (!allBenefits.length) return [];
@@ -115,6 +137,7 @@ export default function BenefitsScreen() {
           onPostular={(item) => {
             if (item.id) router.push(`/benefit/${item.id}` as const);
           }}
+          onAction={handleAction}
           ListEmptyComponent={
             <View className="mt-10 items-center px-4">
               <Text className="text-4xl">🤷‍♂️</Text>
@@ -128,6 +151,23 @@ export default function BenefitsScreen() {
           }
         />
       </View>
+
+      {/* Capa de confeti por delante de las cards (no bloquea toques) */}
+      {explosion && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999,
+            pointerEvents: "none",
+          }}
+        >
+          <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} fadeOut />
+        </View>
+      )}
     </View>
   );
 }

@@ -68,8 +68,9 @@ function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
       ? match.status
       : 'MISSING_DATA';
   const category = b.category;
+  const urlApply = b.urlApply ?? null;
 
-  return { id: b.id, title, amount, deadline, status, category };
+  return { id: b.id, title, amount, deadline, status, category, urlApply };
 }
 
 function getUserId(): string {

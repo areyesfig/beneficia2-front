@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity } from 'react-native';
 import { Link } from 'expo-router';
 import {
   Home,
@@ -14,8 +14,11 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { formatCurrency } from '@/utils/format-currency';
+import { openSafeUrl } from '@/utils/safe-open-url';
 
 export type BenefitStatus = 'ELIGIBLE' | 'MISSING_DATA';
+
+export type ApplicationActionStatus = 'APPLIED' | 'DISMISSED';
 
 export interface BenefitCardProps {
   id?: string;
@@ -24,7 +27,11 @@ export interface BenefitCardProps {
   deadline: string;
   status: BenefitStatus;
   category?: string;
+  /** URL para postular (abre en navegador al tocar "Postular") */
+  urlApply?: string | null;
   onPostular?: () => void;
+  /** Gamificación: notifica "Postulé" o "Ocultar" y dispara confetti en pantalla lista */
+  onAction?: (benefitId: string, status: ApplicationActionStatus) => void;
 }
 
 const CATEGORY_ICON: Record<string, { Icon: LucideIcon; bg: string; color: string }> = {
@@ -53,10 +60,18 @@ export function BenefitCard({
   deadline,
   status,
   category,
+  urlApply,
   onPostular,
+  onAction,
 }: BenefitCardProps) {
   const isEligible = status === 'ELIGIBLE';
   const { Icon, bg, color } = getCategoryStyle(category);
+  const showActionBar = onAction && id;
+
+  const handleApply = async () => {
+    if (urlApply) await openSafeUrl(urlApply);
+    if (id) onAction?.(id, 'APPLIED');
+  };
 
   const cardContent = (
     <>
@@ -102,10 +117,29 @@ export function BenefitCard({
         </View>
       )}
 
-      {/* Footer: flecha indicando que es tocable */}
-      <View className="mt-4 flex-row justify-end">
-        <ChevronRight size={20} color="#64748b" strokeWidth={2} />
-      </View>
+      {/* Barra de acciones (gamificación): Ocultar / Postular */}
+      {showActionBar ? (
+        <View className="mt-4 flex-row gap-3 border-t border-slate-100 pt-4">
+          <TouchableOpacity
+            onPress={() => onAction(id!, 'DISMISSED')}
+            className="flex-1 rounded-xl border border-slate-200 py-3"
+            activeOpacity={0.8}
+          >
+            <Text className="text-center font-bold text-slate-500">Ocultar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleApply}
+            className="flex-1 rounded-xl bg-teal-600 py-3 shadow-lg shadow-teal-200"
+            activeOpacity={0.8}
+          >
+            <Text className="text-center font-bold text-white">Postular 🚀</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View className="mt-4 flex-row justify-end">
+          <ChevronRight size={20} color="#64748b" strokeWidth={2} />
+        </View>
+      )}
     </>
   );
 
