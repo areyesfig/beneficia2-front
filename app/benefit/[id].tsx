@@ -7,10 +7,11 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
-  Linking,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUserMatches } from "@/features/benefits/api/useUserMatches";
+import { openSafeUrl } from "@/utils/safe-open-url";
 
 export default function BenefitDetailScreen() {
   const params = useLocalSearchParams<{
@@ -87,9 +88,13 @@ export default function BenefitDetailScreen() {
   const displayDescription = benefit?.description ?? 'Sin descripción disponible.';
   const displayDeadline = benefit?.closesAt ?? fallbackDeadline ?? '--';
 
-  const handlePrimaryAction = () => {
+  const handlePrimaryAction = async () => {
     if (isEligible) {
-      Linking.openURL("https://google.cl");
+      const urlToOpen = benefit?.urlApply?.trim() || "https://www.google.cl";
+      const opened = await openSafeUrl(urlToOpen);
+      if (!opened) {
+        Alert.alert("Error", "No se pudo abrir el enlace de postulación.");
+      }
     } else {
       router.push("/profile/rsh");
     }

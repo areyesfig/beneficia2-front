@@ -70,7 +70,10 @@ export function RSHWizard() {
   };
 
   const onSubmit = (data: RSHWizardFormValues) => {
-    console.log('RSH Wizard submitted:', data);
+    // No registrar datos con PII (RUT) en producción
+    if (__DEV__) {
+      console.log('RSH Wizard submitted (dev only)');
+    }
     // Aquí puedes navegar o enviar al API
   };
 

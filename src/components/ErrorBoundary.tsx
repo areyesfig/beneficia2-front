@@ -19,7 +19,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary:", error, errorInfo);
+    if (__DEV__) {
+      console.error("ErrorBoundary:", error, errorInfo);
+    }
   }
 
   reset = () => this.setState({ hasError: false, error: null });
@@ -34,7 +36,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
               Algo salió mal
             </Text>
             <Text className="mb-6 text-center text-slate-600">
-              {this.state.error.message}
+              {__DEV__ ? this.state.error.message : 'Ha ocurrido un error. Por favor intenta de nuevo.'}
             </Text>
             <Pressable
               onPress={this.reset}

@@ -106,7 +106,9 @@ export default function WizardScreen() {
         Alert.alert("Error", "No se pudo guardar el perfil.");
       }
     } catch (error) {
-      console.error(error);
+      if (__DEV__) {
+        console.error(error);
+      }
       Alert.alert("Error", "Error de conexión.");
     }
   };
