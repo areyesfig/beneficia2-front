@@ -1,3 +1,8 @@
+/**
+ * Wizard reducido: solo RUT, tramo RSH y cargas familiares.
+ * @legacy El flujo actual de perfil/RSH es WizardScreen (onboarding completo). Este componente
+ * no se usa en ninguna ruta; se mantiene por si se necesita una pantalla "solo actualizar RUT/RSH".
+ */
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';

@@ -12,7 +12,7 @@
 
 ## 3. Completar lo planteado en la estructura inicial
 
-- **`src/api/`**: Cliente Axios (base URL, interceptors) y hooks de TanStack Query (`useBenefits`, `useUser`).
+- **`src/api/`**: Cliente Axios (base URL, interceptors) y hooks de TanStack Query (`useUser`). Beneficios por usuario: `useUserMatches` en `src/features/benefits/api/`.
 - **`src/components/ui/`**: Átomos reutilizables (Button, Input, Card) con NativeWind para unificar estilo y usarlos en RSHWizard y BenefitCard.
 - **`src/utils/format-currency.ts`**: Formatear pesos chilenos (CLP); usarlo en `BenefitCard` en lugar de `toLocaleString` directo.
 
@@ -36,5 +36,5 @@
 | Alta | Expo Router con `app/` y pantalla RSH/Benefits | ✅ `app/_layout.tsx`, `app/index.tsx`, `app/benefits.tsx`, `app/profile/rsh.tsx`, entry `expo-router/entry` |
 | Media | `format-currency.ts` + BenefitCard | ✅ `src/utils/format-currency.ts`, BenefitCard usa `formatCurrency` |
 | Media | Componentes UI (Button, Input, Card) | ✅ `src/components/ui/` + barrel `index.ts` |
-| Media | API + useBenefits / useUser | ✅ `src/api/client.ts`, `src/api/hooks/useBenefits.ts`, `useUser.ts`, QueryClient en layout, benefits usa `useBenefits` con fallback mock |
+| Media | API + useUser / useUserMatches | ✅ `src/api/client.ts`, `src/api/hooks/useUser.ts`, QueryClient en layout, benefits usa `useUserMatches` con fallback mock |
 | Baja | ESLint, tests, Error Boundary | ✅ `eslint.config.mjs`, `src/utils/rut-validator.test.ts`, `src/components/ErrorBoundary.tsx` en layout |
