@@ -1,16 +1,16 @@
 /**
  * Mapeo de categorías: ENUM del backend → etiqueta e icono para la UI.
- * Usado en chips de filtro y en tarjetas de beneficio.
+ * Iconos SVG (Lucide) por ui-ux-pro-max: no emojis en UI.
  */
 export const BENEFIT_CATEGORIES = [
-  { id: 'ALL', label: 'Todo', icon: '🔥' },
-  { id: 'BONOS_ESTATALES', label: 'Bonos', icon: '💰' },
-  { id: 'VIVIENDA', label: 'Vivienda', icon: '🏠' },
-  { id: 'SALUD_Y_CUIDADOS', label: 'Salud', icon: '🏥' },
-  { id: 'NINEZ_Y_ADOLESCENCIA', label: 'Niñez', icon: '🧸' },
-  { id: 'JUVENTUD_Y_ESTUDIOS', label: 'Estudios', icon: '🎓' },
-  { id: 'ADULTO_MAYOR', label: 'Adulto Mayor', icon: '👴' },
-  { id: 'EMPRENDIMIENTO', label: 'Negocios', icon: '🚀' },
+  { id: 'ALL', label: 'Todo', iconKey: 'Flame' as const },
+  { id: 'BONOS_ESTATALES', label: 'Bonos', iconKey: 'BadgeDollarSign' as const },
+  { id: 'VIVIENDA', label: 'Vivienda', iconKey: 'Home' as const },
+  { id: 'SALUD_Y_CUIDADOS', label: 'Salud', iconKey: 'HeartPulse' as const },
+  { id: 'NINEZ_Y_ADOLESCENCIA', label: 'Niñez', iconKey: 'Baby' as const },
+  { id: 'JUVENTUD_Y_ESTUDIOS', label: 'Estudios', iconKey: 'GraduationCap' as const },
+  { id: 'ADULTO_MAYOR', label: 'Adulto Mayor', iconKey: 'User' as const },
+  { id: 'EMPRENDIMIENTO', label: 'Negocios', iconKey: 'Rocket' as const },
 ] as const;
 
 /** IDs de categoría (incluye 'ALL' para "ver todos") */

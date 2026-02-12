@@ -2,7 +2,20 @@ import { BenefitsFeed } from "@/features/benefits/components/BenefitsFeed";
 import type { BenefitItem } from "@/features/benefits/components/BenefitsFeed";
 import { View, Text, ActivityIndicator, Pressable, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import {
+  ChevronLeft,
+  Flame,
+  BadgeDollarSign,
+  Home,
+  HeartPulse,
+  Baby,
+  GraduationCap,
+  User,
+  Rocket,
+  LayoutGrid,
+  List,
+  type LucideIcon,
+} from "lucide-react-native";
 import { useState, useMemo } from "react";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { useUserMatches, mapMatchesToBenefitItems } from "@/features/benefits/api/useUserMatches";
@@ -13,11 +26,25 @@ import {
 } from "@/constants/categories";
 import { API_URL } from "@/config/api";
 import { getCurrentUserId, ANONYMOUS_DEV_USER_ID } from "@/config/env";
+import { chipStyle } from "@/styles/screenStyles";
+import { theme } from "@/theme/theme";
+import { VStack, HStack } from "@/theme/layout";
+import { AnimatedPressableScale } from "@/components/AnimatedPressable";
+import { BenefitsGrid } from "@/features/benefits/components/BenefitsGrid";
 
-/** Pon en true para probar la UI sin depender del API; false para usar datos reales */
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  Flame,
+  BadgeDollarSign,
+  Home,
+  HeartPulse,
+  Baby,
+  GraduationCap,
+  User,
+  Rocket,
+};
+
 const USE_MOCK_FOR_TESTING = true;
 
-/** Mock con categorías alineadas al ENUM del backend para que los chips filtren bien */
 const MOCK_BENEFITS: BenefitItem[] = [
   { id: "mock-1", title: "Bono al Trabajo de la Mujer", amount: 98750, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
   { id: "mock-2", title: "Subsidio Único Familiar", amount: 45000, deadline: "15 Abr 2025", status: "MISSING_DATA", category: "BONOS_ESTATALES" },
@@ -33,6 +60,7 @@ export default function BenefitsScreen() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<BenefitCategoryId>("ALL");
   const [explosion, setExplosion] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const { data: matches, isLoading } = useUserMatches();
   const mapped = mapMatchesToBenefitItems(matches);
   const allBenefits = USE_MOCK_FOR_TESTING
@@ -69,90 +97,147 @@ export default function BenefitsScreen() {
 
   if (!USE_MOCK_FOR_TESTING && isLoading && !matches) {
     return (
-      <View className="flex-1 items-center justify-center bg-teal-50">
-        <ActivityIndicator size="large" color="#0d9488" />
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-teal-50">
-      {/* Header: grande, minimalista, back + avatar */}
-      <View className="flex-row items-center justify-between px-6 pt-4 pb-6">
-        <Pressable onPress={() => router.back()} className="mr-3 -ml-1 p-1 active:opacity-70">
-          <ChevronLeft size={28} strokeWidth={2} color="#0f766e" />
-        </Pressable>
-        <Text className="flex-1 text-3xl font-bold text-slate-800" numberOfLines={1}>
-          Hola, Juan
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <VStack spacing={4} style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.md, paddingBottom: theme.spacing.lg }}>
+        <HStack spacing={theme.spacing.sm} style={{ justifyContent: "space-between" }}>
+          <Pressable onPress={() => router.back()} style={{ marginLeft: -theme.spacing.xs, padding: theme.spacing.sm }}>
+            <ChevronLeft size={26} strokeWidth={2} color={theme.colors.primaryDark} />
+          </Pressable>
+          <Text style={[theme.typography.h3, { color: theme.colors.text }]} numberOfLines={1}>
+            Beneficios
+          </Text>
+          <HStack spacing={theme.spacing.xs}>
+            <Pressable
+              onPress={() => setViewMode(viewMode === "list" ? "grid" : "list")}
+              style={[
+                { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+                chipStyle.rounded,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={viewMode === "list" ? "Ver en cuadrícula" : "Ver en lista"}
+            >
+              {viewMode === "list" ? (
+                <LayoutGrid size={22} color={theme.colors.primary} strokeWidth={2} />
+              ) : (
+                <List size={22} color={theme.colors.primary} strokeWidth={2} />
+              )}
+            </Pressable>
+            <View
+              style={[
+                { width: 40, height: 40, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.primary },
+                chipStyle.rounded,
+              ]}
+            >
+              <Text style={[theme.typography.label, { fontWeight: "700", color: "#fff" }]}>J</Text>
+            </View>
+          </HStack>
+        </HStack>
+        <Text style={[theme.typography.body, { color: theme.colors.textSecondary, paddingHorizontal: theme.spacing.xs }]}>
+          Para tu perfil
         </Text>
-        <View className="h-11 w-11 items-center justify-center rounded-full bg-teal-600 shadow-sm">
-          <Text className="text-base font-semibold text-white">J</Text>
-        </View>
-      </View>
+      </VStack>
 
-      {/* Subtítulo en gris suave */}
-      <View className="px-6 pb-3">
-        <Text className="text-base text-slate-600">Tus beneficios disponibles</Text>
-      </View>
-
-      {/* Smart Chips: lista horizontal deslizante (estilo Netflix/YouTube) */}
-      <View className="border-b border-teal-100 bg-white pb-4 shadow-sm">
+      <View style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface, paddingTop: theme.spacing.sm, paddingBottom: theme.spacing.md }}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
-            paddingHorizontal: 24,
-            paddingRight: 32,
+            paddingHorizontal: theme.spacing.lg,
+            paddingRight: theme.spacing.xl,
+            flexDirection: "row",
             alignItems: "center",
-            gap: 8,
+            gap: theme.spacing.sm,
+            minHeight: 44,
           }}
-          className="flex-row"
         >
           {BENEFIT_CATEGORIES.map((category) => {
             const isActive = selectedCategory === category.id;
+            const IconComponent = CATEGORY_ICONS[category.iconKey] ?? Flame;
             return (
-              <Pressable
+              <AnimatedPressableScale
                 key={category.id}
                 onPress={() => setSelectedCategory(category.id)}
-                style={{ marginRight: 8 }}
-                className={`min-w-0 flex-row items-center justify-center rounded-full border px-4 py-2.5 ${
-                  isActive ? "border-teal-600 bg-teal-600" : "border-slate-200 bg-white"
-                }`}
+                style={[
+                  {
+                    height: 44,
+                    minWidth: 80,
+                    paddingHorizontal: theme.spacing.md,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                    backgroundColor: isActive ? theme.colors.primary : theme.colors.background,
+                  },
+                  chipStyle.rounded,
+                  isActive && chipStyle.shadow,
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={`Filtrar por ${category.label}`}
+                accessibilityState={{ selected: isActive }}
               >
+                <IconComponent size={18} color={isActive ? "#fff" : theme.colors.textSecondary} strokeWidth={2} />
                 <Text
                   numberOfLines={1}
-                  className={`font-bold ${isActive ? "text-white" : "text-slate-600"}`}
+                  style={[
+                    theme.typography.label,
+                    { color: isActive ? "#fff" : theme.colors.textSecondary },
+                  ]}
                 >
-                  {category.icon}  {category.label}
+                  {category.label}
                 </Text>
-              </Pressable>
+              </AnimatedPressableScale>
             );
           })}
         </ScrollView>
       </View>
 
-      <View className="flex-1">
-        <BenefitsFeed
+      <View style={{ flex: 1 }}>
+        {viewMode === "grid" ? (
+          <BenefitsGrid
+            data={filteredBenefits}
+            onPostular={(item) => item.id && router.push(`/benefit/${item.id}` as const)}
+            onAction={handleAction}
+            ListEmptyComponent={
+            <VStack spacing={theme.spacing.md} style={{ marginTop: theme.spacing.xl, alignItems: "center", paddingHorizontal: theme.spacing.md }}>
+              <Text style={{ fontSize: 48 }}>🤷‍♂️</Text>
+              <Text style={[theme.typography.body, { textAlign: "center", color: theme.colors.textSecondary }]}>
+                No encontramos beneficios en esta categoría para tu perfil.
+              </Text>
+              <AnimatedPressableScale onPress={() => setSelectedCategory("ALL")} style={{ marginTop: theme.spacing.md }}>
+                <Text style={[theme.typography.label, { fontWeight: "700", color: theme.colors.primary }]}>Ver todos</Text>
+              </AnimatedPressableScale>
+            </VStack>
+          }
+          />
+        ) : (
+          <BenefitsFeed
           data={filteredBenefits}
           onPostular={(item) => {
             if (item.id) router.push(`/benefit/${item.id}` as const);
           }}
           onAction={handleAction}
           ListEmptyComponent={
-            <View className="mt-10 items-center px-4">
-              <Text className="text-4xl">🤷‍♂️</Text>
-              <Text className="mt-2 text-center text-slate-500">
+            <VStack spacing={theme.spacing.md} style={{ marginTop: theme.spacing.xl, alignItems: "center", paddingHorizontal: theme.spacing.md }}>
+              <Text style={{ fontSize: 48 }}>🤷‍♂️</Text>
+              <Text style={[theme.typography.body, { textAlign: "center", color: theme.colors.textSecondary }]}>
                 No encontramos beneficios en esta categoría para tu perfil.
               </Text>
-              <Pressable onPress={() => setSelectedCategory("ALL")} className="mt-4">
-                <Text className="font-bold text-teal-600">Ver todos</Text>
-              </Pressable>
-            </View>
+              <AnimatedPressableScale onPress={() => setSelectedCategory("ALL")} style={{ marginTop: theme.spacing.md }}>
+                <Text style={[theme.typography.label, { fontWeight: "700", color: theme.colors.primary }]}>Ver todos</Text>
+              </AnimatedPressableScale>
+            </VStack>
           }
         />
+        )}
       </View>
 
-      {/* Capa de confeti por delante de las cards (no bloquea toques) */}
       {explosion && (
         <View
           style={{

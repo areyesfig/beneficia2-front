@@ -3,6 +3,7 @@ import React from 'react';
 import { View } from 'react-native';
 import type { BenefitCardProps } from './BenefitCard';
 import { BenefitCard } from './BenefitCard';
+import { theme } from '@/theme/theme';
 
 export type BenefitItem = BenefitCardProps;
 
@@ -16,7 +17,7 @@ interface BenefitsFeedProps {
 
 export function BenefitsFeed({ data, onPostular, onAction, ListEmptyComponent }: BenefitsFeedProps) {
   const renderItem = ({ item }: { item: BenefitItem }) => (
-    <View className="mb-5">
+    <View style={{ marginBottom: theme.spacing.lg }}>
       <BenefitCard
         id={item.id}
         title={item.title}
@@ -37,7 +38,7 @@ export function BenefitsFeed({ data, onPostular, onAction, ListEmptyComponent }:
       renderItem={renderItem}
       estimatedItemSize={140}
       keyExtractor={(item, index) => item.id ? `${item.id}` : `${item.title}-${index}`}
-      contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 20, paddingBottom: 32 }}
+      contentContainerStyle={{ paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg, paddingBottom: 32 }}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={ListEmptyComponent}
     />

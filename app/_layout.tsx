@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { theme } from "@/theme/theme";
 
 const queryClient = new QueryClient();
 
@@ -16,11 +17,11 @@ export default function RootLayout() {
           <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
             <Stack
             screenOptions={{
-              headerStyle: { backgroundColor: "#f0fdfa" },
-              headerTintColor: "#0f766e",
-              headerTitleStyle: { fontWeight: "700", fontSize: 18 },
+              headerStyle: { backgroundColor: theme.colors.surface },
+              headerTintColor: theme.colors.primary,
+              headerTitleStyle: { fontWeight: "700", fontSize: 18, color: theme.colors.text },
               headerShadowVisible: false,
-              contentStyle: { backgroundColor: "#f0fdfa" },
+              contentStyle: { backgroundColor: theme.colors.background },
             }}
             >
               <Stack.Screen name="index" options={{ title: "Inicio", headerShown: false }} />
@@ -28,7 +29,13 @@ export default function RootLayout() {
                 name="wizard"
                 options={{ headerShown: false }}
               />
-              <Stack.Screen name="home" options={{ title: "Inicio" }} />
+              <Stack.Screen
+                name="home"
+                options={{
+                  title: "Inicio",
+                  headerShown: true,
+                }}
+              />
               <Stack.Screen
                 name="benefits"
                 options={{

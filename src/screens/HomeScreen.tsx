@@ -1,45 +1,127 @@
 import { Link } from "expo-router";
-import { View, Text, Pressable } from "react-native";
+import { View, Text } from "react-native";
+import { Wallet, FileCheck } from "lucide-react-native";
+import { cardStyle, chipStyle } from "@/styles/screenStyles";
+import { theme } from "@/theme/theme";
+import { VStack, HStack } from "@/theme/layout";
+import { AnimatedPressableScale } from "@/components/AnimatedPressable";
 
 export default function HomeScreen() {
   return (
-    <View className="flex-1 bg-teal-50 px-6 pt-10">
-      <Text className="mb-2 text-3xl font-bold text-slate-800">Bienvenido</Text>
-      <Text className="mb-10 text-base text-slate-600">
-        Accede a beneficios y completa tu perfil RSH.
-      </Text>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <VStack spacing={theme.spacing.sm} style={{ paddingHorizontal: theme.spacing.md, paddingTop: theme.spacing.xl, paddingBottom: theme.spacing.xl }}>
+        <Text style={[theme.typography.h1, { color: theme.colors.text }]}>
+          Hola 👋
+        </Text>
+        <Text style={[theme.typography.body, { color: theme.colors.textSecondary, maxWidth: 300 }]}>
+          Revisa tus beneficios y completa tu perfil para postular.
+        </Text>
+      </VStack>
 
-      <View className="gap-4">
+      <VStack spacing={theme.spacing.md} style={{ flex: 1, paddingHorizontal: theme.spacing.md }}>
         <Link href="/benefits" asChild>
-          <Pressable className="rounded-3xl border border-teal-100 bg-white p-5 shadow-lg active:opacity-95">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-1">
-                <Text className="text-lg font-bold text-slate-800">Ver beneficios</Text>
-                <Text className="mt-0.5 text-sm text-slate-600">Revisa tu elegibilidad y montos</Text>
+          <AnimatedPressableScale
+            style={[
+              { overflow: "hidden", backgroundColor: theme.colors.surface, padding: theme.spacing.md },
+              cardStyle.wrapper,
+              cardStyle.shadowStrong,
+            ]}
+          >
+            <HStack spacing={theme.spacing.md}>
+              <View
+                style={[
+                  {
+                    width: 56,
+                    height: 56,
+                    borderRadius: theme.borderRadius.lg,
+                    backgroundColor: theme.colors.primaryTint,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                  cardStyle.wrapper,
+                ]}
+              >
+                <Wallet size={28} color={theme.colors.primary} strokeWidth={2} />
               </View>
-              <View className="h-10 w-10 items-center justify-center rounded-full bg-teal-600">
-                <Text className="text-lg font-bold text-white">→</Text>
+              <VStack spacing={2} style={{ flex: 1 }}>
+                <Text style={[theme.typography.body, { fontWeight: "600", color: theme.colors.text }]}>
+                  Ver beneficios
+                </Text>
+                <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>
+                  Elegibilidad y montos según tu perfil
+                </Text>
+              </VStack>
+              <View
+                style={[
+                  {
+                    width: 40,
+                    height: 40,
+                    borderRadius: theme.borderRadius.full,
+                    backgroundColor: theme.colors.primary,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                  chipStyle.rounded,
+                ]}
+              >
+                <Text style={{ fontSize: 18, fontWeight: "700", color: "#fff" }}>→</Text>
               </View>
-            </View>
-          </Pressable>
+            </HStack>
+          </AnimatedPressableScale>
         </Link>
 
         <Link href="/profile/rsh" asChild>
-          <Pressable className="rounded-3xl border border-teal-100 bg-white p-5 shadow-lg active:opacity-95">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-1">
-                <Text className="text-lg font-bold text-slate-800">
+          <AnimatedPressableScale
+            style={[
+              { overflow: "hidden", backgroundColor: theme.colors.surface, padding: theme.spacing.md },
+              cardStyle.wrapper,
+              cardStyle.shadow,
+            ]}
+          >
+            <HStack spacing={theme.spacing.md}>
+              <View
+                style={[
+                  {
+                    width: 56,
+                    height: 56,
+                    borderRadius: theme.borderRadius.lg,
+                    backgroundColor: theme.colors.border,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                  cardStyle.wrapper,
+                ]}
+              >
+                <FileCheck size={28} color={theme.colors.textSecondary} strokeWidth={2} />
+              </View>
+              <VStack spacing={2} style={{ flex: 1 }}>
+                <Text style={[theme.typography.body, { fontWeight: "600", color: theme.colors.text }]}>
                   Registro Social de Hogares
                 </Text>
-                <Text className="mt-0.5 text-sm text-slate-600">Completa tu perfil para postular</Text>
+                <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>
+                  Completa tu perfil para postular
+                </Text>
+              </VStack>
+              <View
+                style={[
+                  {
+                    width: 40,
+                    height: 40,
+                    borderRadius: theme.borderRadius.full,
+                    borderWidth: 2,
+                    borderColor: theme.colors.primaryTintBorder,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                  chipStyle.rounded,
+                ]}
+              >
+                <Text style={[theme.typography.body, { fontWeight: "600", color: theme.colors.primary }]}>→</Text>
               </View>
-              <View className="h-10 w-10 items-center justify-center rounded-full border border-teal-200">
-                <Text className="text-lg font-semibold text-teal-600">→</Text>
-              </View>
-            </View>
-          </Pressable>
+            </HStack>
+          </AnimatedPressableScale>
         </Link>
-      </View>
+      </VStack>
     </View>
   );
 }

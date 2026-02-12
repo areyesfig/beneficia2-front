@@ -11,7 +11,11 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUserMatches } from "@/features/benefits/api/useUserMatches";
+import { cardStyle, buttonStyle } from "@/styles/screenStyles";
 import { openSafeUrl } from "@/utils/safe-open-url";
+import { theme } from "@/theme/theme";
+import { VStack, HStack } from "@/theme/layout";
+import { AnimatedPressableScale } from "@/components/AnimatedPressable";
 
 export default function BenefitDetailScreen() {
   const params = useLocalSearchParams<{
@@ -45,35 +49,35 @@ export default function BenefitDetailScreen() {
     navigation.setOptions({
       headerShown: true,
       headerLeft: () => (
-        <Pressable onPress={() => router.back()} className="mr-2 p-2 active:opacity-70">
-          <ChevronLeft size={24} color="#0f766e" strokeWidth={2} />
+        <Pressable onPress={() => router.back()} style={{ marginRight: theme.spacing.sm, padding: theme.spacing.sm }}>
+          <ChevronLeft size={24} color={theme.colors.primaryDark} strokeWidth={2} />
         </Pressable>
       ),
       headerTitle: displayNameForHeader,
       headerTitleStyle: { fontWeight: "700", fontSize: 18 },
-      headerStyle: { backgroundColor: "#f0fdfa" },
+      headerStyle: { backgroundColor: theme.colors.background },
       headerShadowVisible: false,
     });
   }, [navigation, router, displayNameForHeader]);
 
   if (isLoading || !id) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-50">
-        <ActivityIndicator size="large" color="#0d9488" />
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
 
   if (!match && !fallbackTitle) {
     return (
-      <View className="flex-1 items-center justify-center bg-teal-50 px-6">
-        <Text className="mb-4 text-center text-lg font-semibold text-slate-800">
+      <VStack spacing={theme.spacing.md} style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: theme.spacing.lg }}>
+        <Text style={[theme.typography.h3, { color: theme.colors.text, textAlign: "center", marginBottom: theme.spacing.md }]}>
           Beneficio no encontrado
         </Text>
-        <Pressable onPress={() => router.back()} className="rounded-2xl bg-teal-600 px-6 py-3">
-          <Text className="font-semibold text-white">Volver</Text>
-        </Pressable>
-      </View>
+        <AnimatedPressableScale onPress={() => router.back()} style={[{ paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.sm, backgroundColor: theme.colors.primary }, buttonStyle.rounded]}>
+          <Text style={[theme.typography.label, { color: "#fff" }]}>Volver</Text>
+        </AnimatedPressableScale>
+      </VStack>
     );
   }
 
@@ -100,93 +104,130 @@ export default function BenefitDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-teal-50">
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <ScrollView
-        className="flex-1"
+        style={{ flex: 1 }}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{
-          paddingHorizontal: 24,
-          paddingTop: 20,
-          paddingBottom: 24 + 88,
+          paddingHorizontal: theme.spacing.lg,
+          paddingTop: theme.spacing.lg,
+          paddingBottom: theme.spacing.lg + 88,
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Banner de estado */}
-        <View
-          className={`mb-6 flex-row items-center gap-3 rounded-2xl p-4 ${
-            isEligible ? "bg-teal-50" : "bg-amber-50"
-          }`}
+        <HStack
+          spacing={12}
+          style={[
+            {
+              marginBottom: theme.spacing.lg,
+              padding: theme.spacing.md,
+              backgroundColor: isEligible ? theme.colors.successTint : theme.colors.warningTint,
+            },
+            cardStyle.wrapper,
+            cardStyle.shadow,
+          ]}
         >
           {isEligible ? (
-            <View className="h-10 w-10 items-center justify-center rounded-full bg-teal-100">
-              <Check size={20} color="#0d9488" strokeWidth={2.5} />
+            <View
+              style={[
+                { width: 48, height: 48, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.successTint },
+                cardStyle.wrapper,
+              ]}
+            >
+              <Check size={24} color={theme.colors.success} strokeWidth={2.5} />
             </View>
           ) : (
-            <View className="h-10 w-10 items-center justify-center rounded-full bg-amber-200">
-              <AlertTriangle size={20} color="#d97706" strokeWidth={2} />
+            <View
+              style={[
+                { width: 48, height: 48, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.warningTint },
+                cardStyle.wrapper,
+              ]}
+            >
+              <AlertTriangle size={24} color={theme.colors.warning} strokeWidth={2} />
             </View>
           )}
           <Text
-            className={`flex-1 text-base font-semibold ${
-              isEligible ? "text-teal-800" : "text-amber-800"
-            }`}
+            style={[
+              theme.typography.body,
+              { fontWeight: "600", flex: 1, color: isEligible ? theme.colors.successText : theme.colors.warningText },
+            ]}
           >
             {isEligible ? "Eres elegible" : "Te falta información para postular"}
           </Text>
-        </View>
+        </HStack>
 
-        {/* Título grande */}
-        <Text className="mb-3 text-2xl font-bold text-slate-800" numberOfLines={3}>
+        <Text style={[theme.typography.h2, { color: theme.colors.text, marginBottom: theme.spacing.sm }]} numberOfLines={3}>
           {displayName}
         </Text>
 
-        {/* Badge institución */}
         {displayInstitution ? (
-          <View className="mb-5 self-start rounded-full bg-slate-200 px-3 py-1.5">
-            <Text className="text-sm font-medium text-slate-600">{displayInstitution}</Text>
+          <View
+            style={[
+              { marginBottom: theme.spacing.lg, alignSelf: "flex-start", paddingHorizontal: theme.spacing.sm, paddingVertical: 6, backgroundColor: theme.colors.border },
+              cardStyle.wrapper,
+            ]}
+          >
+            <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>{displayInstitution}</Text>
           </View>
         ) : null}
 
-        {/* Descripción */}
-        <View className="mb-8 rounded-3xl bg-white p-5 shadow-lg">
-          <Text className="text-base leading-6 text-slate-700">
+        <View style={[{ marginBottom: theme.spacing.xl, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
+          <Text style={[theme.typography.body, { color: theme.colors.text, lineHeight: 24 }]}>
             {displayDescription}
           </Text>
         </View>
 
-        {/* ¿Qué me falta? - solo si NO es eligible */}
         {!isEligible && missingRequirements.length > 0 && (
-          <View className="mb-8 rounded-3xl bg-white p-5 shadow-lg">
-            <Text className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <View style={[{ marginBottom: theme.spacing.xl, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
+            <Text style={[theme.typography.caption, { fontWeight: "700", marginBottom: theme.spacing.md, color: theme.colors.textSecondary, letterSpacing: 0.5 }]}>
               ¿Qué me falta?
             </Text>
-            <View className="gap-3">
+            <VStack spacing={12}>
               {missingRequirements.map((req, index) => (
-                <View key={`${req}-${index}`} className="flex-row items-center gap-3">
-                  <View className="h-6 w-6 items-center justify-center rounded-full bg-red-100">
-                    <X size={14} color="#dc2626" strokeWidth={2.5} />
+                <HStack key={`${req}-${index}`} spacing={theme.spacing.sm}>
+                  <View
+                    style={[
+                      { width: 24, height: 24, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.errorTint },
+                      cardStyle.wrapper,
+                    ]}
+                  >
+                    <X size={14} color={theme.colors.error} strokeWidth={2.5} />
                   </View>
-                  <Text className="flex-1 text-base text-slate-700">{req}</Text>
-                </View>
+                  <Text style={[theme.typography.body, { flex: 1, color: theme.colors.text }]}>{req}</Text>
+                </HStack>
               ))}
-            </View>
+            </VStack>
           </View>
         )}
       </ScrollView>
 
-      {/* Sticky Footer */}
       <View
-        className="absolute left-0 right-0 border-t border-teal-100 bg-teal-50 px-6 pb-6 pt-4"
-        style={{ paddingBottom: insets.bottom + 24 }}
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.border,
+          backgroundColor: "rgba(255,255,255,0.95)",
+          paddingHorizontal: theme.spacing.lg,
+          paddingTop: theme.spacing.md,
+          paddingBottom: insets.bottom + theme.spacing.lg,
+        }}
       >
-        <Pressable
+        <AnimatedPressableScale
           onPress={handlePrimaryAction}
-          className="rounded-2xl bg-teal-600 py-4 active:opacity-90"
-          style={{ alignItems: "center" }}
+          style={[
+            { paddingVertical: theme.spacing.md, alignItems: "center" },
+            buttonStyle.rounded,
+            buttonStyle.shadowPrimary,
+            { backgroundColor: theme.colors.primary },
+          ]}
         >
-          <Text className="font-semibold text-white">
+          <Text style={[theme.typography.label, { color: "#fff" }]}>
             {isEligible ? "Ir a Postular" : "Actualizar mis datos"}
           </Text>
-        </Pressable>
+        </AnimatedPressableScale>
       </View>
     </View>
   );

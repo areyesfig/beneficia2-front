@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import {
   Home,
@@ -15,6 +15,10 @@ import {
 } from 'lucide-react-native';
 import { formatCurrency } from '@/utils/format-currency';
 import { openSafeUrl } from '@/utils/safe-open-url';
+import { cardStyle, buttonStyle } from '@/styles/screenStyles';
+import { theme } from '@/theme/theme';
+import { VStack, HStack } from '@/theme/layout';
+import { AnimatedPressableScale } from '@/components/AnimatedPressable';
 
 export type BenefitStatus = 'ELIGIBLE' | 'MISSING_DATA';
 
@@ -27,24 +31,22 @@ export interface BenefitCardProps {
   deadline: string;
   status: BenefitStatus;
   category?: string;
-  /** URL para postular (abre en navegador al tocar "Postular") */
   urlApply?: string | null;
   onPostular?: () => void;
-  /** Gamificación: notifica "Postulé" o "Ocultar" y dispara confetti en pantalla lista */
   onAction?: (benefitId: string, status: ApplicationActionStatus) => void;
 }
 
 const CATEGORY_ICON: Record<string, { Icon: LucideIcon; bg: string; color: string }> = {
-  VIVIENDA: { Icon: Home, bg: 'bg-teal-100', color: '#0d9488' },
-  BONOS_ESTATALES: { Icon: Gift, bg: 'bg-teal-100', color: '#0f766e' },
-  SALUD_Y_CUIDADOS: { Icon: Heart, bg: 'bg-teal-100', color: '#0d9488' },
-  SALUD: { Icon: Heart, bg: 'bg-teal-100', color: '#0d9488' },
-  NINEZ_Y_ADOLESCENCIA: { Icon: Baby, bg: 'bg-teal-100', color: '#0f766e' },
-  JUVENTUD_Y_ESTUDIOS: { Icon: GraduationCap, bg: 'bg-teal-100', color: '#0d9488' },
-  EDUCACION: { Icon: GraduationCap, bg: 'bg-teal-100', color: '#0d9488' },
-  ADULTO_MAYOR: { Icon: User, bg: 'bg-teal-100', color: '#0f766e' },
-  EMPRENDIMIENTO: { Icon: Rocket, bg: 'bg-teal-100', color: '#0d9488' },
-  default: { Icon: CircleDollarSign, bg: 'bg-slate-100', color: '#64748b' },
+  VIVIENDA: { Icon: Home, bg: theme.colors.primaryTint, color: theme.colors.primary },
+  BONOS_ESTATALES: { Icon: Gift, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
+  SALUD_Y_CUIDADOS: { Icon: Heart, bg: theme.colors.primaryTint, color: theme.colors.primary },
+  SALUD: { Icon: Heart, bg: theme.colors.primaryTint, color: theme.colors.primary },
+  NINEZ_Y_ADOLESCENCIA: { Icon: Baby, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
+  JUVENTUD_Y_ESTUDIOS: { Icon: GraduationCap, bg: theme.colors.primaryTint, color: theme.colors.primary },
+  EDUCACION: { Icon: GraduationCap, bg: theme.colors.primaryTint, color: theme.colors.primary },
+  ADULTO_MAYOR: { Icon: User, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
+  EMPRENDIMIENTO: { Icon: Rocket, bg: theme.colors.primaryTint, color: theme.colors.primary },
+  default: { Icon: CircleDollarSign, bg: theme.colors.border, color: theme.colors.textSecondary },
 };
 
 function getCategoryStyle(category?: string) {
@@ -75,75 +77,98 @@ export function BenefitCard({
 
   const cardContent = (
     <>
-      {/* Header: icono izquierda + badge derecha */}
-      <View className="mb-4 flex-row items-center justify-between">
-        <View className={`h-10 w-10 items-center justify-center rounded-full ${bg}`}>
+      <HStack spacing={theme.spacing.sm} style={{ justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
+        <View
+          style={[
+            { width: 40, height: 40, borderRadius: theme.borderRadius.full, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' },
+            cardStyle.wrapper,
+          ]}
+        >
           <Icon size={22} color={color} strokeWidth={2} />
         </View>
         <View
-          className={`rounded-full px-3 py-1 ${
-            isEligible ? 'bg-teal-100' : 'bg-amber-50'
-          }`}
+          style={[
+            {
+              paddingHorizontal: theme.spacing.sm,
+              paddingVertical: theme.spacing.xs,
+              borderRadius: theme.borderRadius.full,
+              backgroundColor: isEligible ? theme.colors.successTint : theme.colors.warningTint,
+            },
+            cardStyle.wrapper,
+          ]}
         >
           <Text
-            className={`text-xs font-semibold ${
-              isEligible ? 'text-teal-700' : 'text-amber-700'
-            }`}
+            style={[
+              theme.typography.caption,
+              { fontWeight: '600', color: isEligible ? theme.colors.successText : theme.colors.warningText },
+            ]}
           >
             {isEligible ? 'Disponible' : 'Falta info'}
           </Text>
         </View>
-      </View>
+      </HStack>
 
-      {/* Cuerpo: título + monto */}
-      <Text className="text-lg font-bold text-slate-800" numberOfLines={2}>
+      <Text style={[theme.typography.h3, { color: theme.colors.text }]} numberOfLines={2}>
         {title}
       </Text>
-      <Text className="mt-2 text-2xl font-extrabold tracking-tight text-teal-700">
+      <Text style={[theme.typography.h2, { color: theme.colors.primaryDark, marginTop: theme.spacing.sm }]}>
         {formatCurrency(amount)}
       </Text>
-      <Text className="mt-1 text-sm text-slate-500">Vence: {deadline}</Text>
+      <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary, marginTop: theme.spacing.xs }]}>
+        Vence: {deadline}
+      </Text>
 
-      {/* Barra de progreso cuando falta requisito */}
       {!isEligible && (
-        <View className="mt-4">
-          <View className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+        <VStack spacing={theme.spacing.xs} style={{ marginTop: theme.spacing.md }}>
+          <View
+            style={[
+              { height: 6, width: '100%', overflow: 'hidden', borderRadius: theme.borderRadius.full, backgroundColor: theme.colors.border },
+              cardStyle.wrapper,
+            ]}
+          >
             <View
-              className="h-full rounded-full bg-amber-500"
-              style={{ width: '50%' }}
+              style={[{ height: '100%', borderRadius: theme.borderRadius.full, backgroundColor: theme.colors.warning }, { width: '50%' }]}
             />
           </View>
-          <Text className="mt-1.5 text-xs text-slate-500">1 de 2 requisitos</Text>
-        </View>
+          <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]}>1 de 2 requisitos</Text>
+        </VStack>
       )}
 
-      {/* Barra de acciones (gamificación): Ocultar / Postular */}
       {showActionBar ? (
-        <View className="mt-4 flex-row gap-3 border-t border-slate-100 pt-4">
-          <TouchableOpacity
+        <HStack spacing={12} style={{ marginTop: theme.spacing.md, paddingTop: theme.spacing.md, borderTopWidth: 1, borderTopColor: theme.colors.border }}>
+          <Pressable
             onPress={() => onAction(id!, 'DISMISSED')}
-            className="flex-1 rounded-xl border border-slate-200 py-3"
-            activeOpacity={0.8}
+            style={[
+              { flex: 1, paddingVertical: theme.spacing.sm, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.background },
+              buttonStyle.rounded,
+            ]}
           >
-            <Text className="text-center font-bold text-slate-500">Ocultar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+            <Text style={[theme.typography.label, { textAlign: 'center', color: theme.colors.textSecondary }]}>Ocultar</Text>
+          </Pressable>
+          <Pressable
             onPress={handleApply}
-            className="flex-1 rounded-xl bg-teal-600 py-3 shadow-lg shadow-teal-200"
-            activeOpacity={0.8}
+            style={[
+              { flex: 1, paddingVertical: theme.spacing.sm, backgroundColor: theme.colors.primary },
+              buttonStyle.rounded,
+              buttonStyle.shadowPrimary,
+            ]}
           >
-            <Text className="text-center font-bold text-white">Postular 🚀</Text>
-          </TouchableOpacity>
-        </View>
+            <Text style={[theme.typography.label, { textAlign: 'center', fontWeight: '700', color: '#fff' }]}>Postular 🚀</Text>
+          </Pressable>
+        </HStack>
       ) : (
-        <View className="mt-4 flex-row justify-end">
-          <ChevronRight size={20} color="#64748b" strokeWidth={2} />
+        <View style={{ marginTop: theme.spacing.md, flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <ChevronRight size={20} color={theme.colors.textSecondary} strokeWidth={2} />
         </View>
       )}
     </>
   );
 
-  const pressableClassName = 'rounded-3xl bg-white p-5 shadow-lg active:opacity-95';
+  const cardWrapperStyle = [
+    { overflow: 'hidden', backgroundColor: theme.colors.surface, padding: theme.spacing.lg },
+    cardStyle.wrapper,
+    cardStyle.shadow,
+  ];
 
   if (id) {
     const query = new URLSearchParams({
@@ -155,14 +180,16 @@ export function BenefitCard({
     const href = `/benefit/${id}?${query.toString()}`;
     return (
       <Link href={href} asChild>
-        <Pressable className={pressableClassName}>{cardContent}</Pressable>
+        <AnimatedPressableScale style={cardWrapperStyle}>
+          {cardContent}
+        </AnimatedPressableScale>
       </Link>
     );
   }
 
   return (
-    <Pressable onPress={onPostular} className={pressableClassName}>
+    <AnimatedPressableScale style={cardWrapperStyle} onPress={onPostular}>
       {cardContent}
-    </Pressable>
+    </AnimatedPressableScale>
   );
 }

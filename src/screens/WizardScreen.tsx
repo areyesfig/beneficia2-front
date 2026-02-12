@@ -18,6 +18,8 @@ import { useRouter, Link } from "expo-router";
 import { API_URL } from "@/config/api";
 import { getCurrentUserId, ANONYMOUS_DEV_USER_ID } from "@/config/env";
 import { validateRut, formatRutInput } from "@/utils/rut-validator";
+import { theme } from "@/theme/theme";
+import { buttonStyle } from "@/styles/screenStyles";
 
 const TRAMOS_RSH = [40, 50, 60, 70, 80, 90, 100] as const;
 const MIN_CARGAS = 0;
@@ -138,9 +140,9 @@ export default function WizardScreen() {
     switch (step) {
       case 1:
         return (
-          <View className="gap-4">
-            <Text className="text-2xl font-bold text-slate-800">¡Hola! 👋</Text>
-            <Text className="text-lg text-slate-600">
+          <View style={{ gap: theme.spacing.md }}>
+            <Text style={[theme.typography.h2, { color: theme.colors.text }]}>¡Hola! 👋</Text>
+            <Text style={[theme.typography.body, { color: theme.colors.textSecondary }]}>
               Para encontrar tus bonos, necesito conocerte un poco. ¿Cómo te llamas?
             </Text>
             <Controller
@@ -148,25 +150,29 @@ export default function WizardScreen() {
               name="name"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className="w-full rounded-2xl border border-teal-200 bg-white p-4 text-xl text-slate-800"
+                  style={[
+                    theme.typography.body,
+                    { fontSize: 20, width: "100%", borderRadius: theme.borderRadius.lg, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.surface, padding: theme.spacing.md, color: theme.colors.text },
+                    buttonStyle.rounded,
+                  ]}
                   placeholder="Tu nombre"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.colors.textSecondary}
                   value={value}
                   onChangeText={onChange}
                 />
               )}
             />
             {errors.name && (
-              <Text className="text-red-500">{errors.name.message}</Text>
+              <Text style={[theme.typography.bodySmall, { color: theme.colors.error }]}>{errors.name.message}</Text>
             )}
           </View>
         );
 
       case 2:
         return (
-          <View className="gap-4">
-            <Text className="text-2xl font-bold text-slate-800">¿Qué edad tienes?</Text>
-            <Text className="text-slate-600">
+          <View style={{ gap: theme.spacing.md }}>
+            <Text style={[theme.typography.h2, { color: theme.colors.text }]}>¿Qué edad tienes?</Text>
+            <Text style={[theme.typography.body, { color: theme.colors.textSecondary }]}>
               Muchos beneficios dependen de tu etapa de vida.
             </Text>
             <Controller
@@ -174,9 +180,13 @@ export default function WizardScreen() {
               name="age"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className="w-full rounded-2xl border border-teal-200 bg-white p-4 text-xl text-slate-800"
+                  style={[
+                    theme.typography.body,
+                    { fontSize: 20, width: "100%", borderRadius: theme.borderRadius.lg, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.surface, padding: theme.spacing.md, color: theme.colors.text },
+                    buttonStyle.rounded,
+                  ]}
                   placeholder="Ej: 28"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.colors.textSecondary}
                   keyboardType="numeric"
                   value={value?.toString() ?? ""}
                   onChangeText={onChange}
@@ -184,16 +194,16 @@ export default function WizardScreen() {
               )}
             />
             {errors.age && (
-              <Text className="text-red-500">{errors.age.message}</Text>
+              <Text style={[theme.typography.bodySmall, { color: theme.colors.error }]}>{errors.age.message}</Text>
             )}
           </View>
         );
 
       case 3:
         return (
-          <View className="gap-4">
-            <Text className="text-2xl font-bold text-slate-800">RUT del titular</Text>
-            <Text className="text-slate-600">
+          <View style={{ gap: theme.spacing.md }}>
+            <Text style={[theme.typography.h2, { color: theme.colors.text }]}>RUT del titular</Text>
+            <Text style={[theme.typography.body, { color: theme.colors.textSecondary }]}>
               Ingresa el RUT de quien postula al Registro Social de Hogares.
             </Text>
             <Controller
@@ -202,11 +212,13 @@ export default function WizardScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
                   <TextInput
-                    className={`w-full rounded-2xl border bg-white p-4 text-lg text-slate-800 ${
-                      errors.rut ? "border-red-500" : "border-teal-200"
-                    }`}
+                    style={[
+                      theme.typography.body,
+                      { fontSize: 18, width: "100%", borderRadius: theme.borderRadius.lg, borderWidth: 1, backgroundColor: theme.colors.surface, padding: theme.spacing.md, color: theme.colors.text, borderColor: errors.rut ? theme.colors.error : theme.colors.border },
+                      buttonStyle.rounded,
+                    ]}
                     placeholder="12.345.678-9"
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor={theme.colors.textSecondary}
                     value={value}
                     onChangeText={(text) => onChange(formatRutInput(text))}
                     onBlur={onBlur}
@@ -215,7 +227,7 @@ export default function WizardScreen() {
                     maxLength={12}
                   />
                   {errors.rut && (
-                    <Text className="mt-1.5 text-red-500">{errors.rut.message}</Text>
+                    <Text style={[theme.typography.bodySmall, { color: theme.colors.error, marginTop: 6 }]}>{errors.rut.message}</Text>
                   )}
                 </View>
               )}
@@ -225,81 +237,75 @@ export default function WizardScreen() {
 
       case 4:
         return (
-          <View className="gap-4">
-            <Text className="text-2xl font-bold text-slate-800">
+          <View style={{ gap: theme.spacing.md }}>
+            <Text style={[theme.typography.h2, { color: theme.colors.text }]}>
               Registro Social de Hogares
             </Text>
-            <Text className="text-slate-600">
+            <Text style={[theme.typography.body, { color: theme.colors.textSecondary }]}>
               ¿En qué tramo estás? Si no sabes, marca 100%.
             </Text>
-            <View className="mt-4 flex-row flex-wrap justify-between gap-3">
-              {TRAMOS_RSH.map((percent) => (
-                <TouchableOpacity
-                  key={percent}
-                  onPress={() => setValue("rsh", percent)}
-                  className={`w-[48%] rounded-2xl border-2 p-4 ${
-                    currentRsh === percent
-                      ? "border-teal-600 bg-teal-600"
-                      : "border-teal-100 bg-white"
-                  }`}
-                >
-                  <Text
-                    className={`text-center text-lg font-bold ${
-                      currentRsh === percent ? "text-white" : "text-slate-600"
-                    }`}
+            <View style={{ marginTop: theme.spacing.md, flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: theme.spacing.sm }}>
+              {TRAMOS_RSH.map((percent) => {
+                const isSelected = currentRsh === percent;
+                return (
+                  <TouchableOpacity
+                    key={percent}
+                    onPress={() => setValue("rsh", percent)}
+                    style={[
+                      { width: "48%", borderRadius: theme.borderRadius.lg, borderWidth: 2, padding: theme.spacing.md },
+                      buttonStyle.rounded,
+                      isSelected ? { borderColor: theme.colors.primary, backgroundColor: theme.colors.primary } : { borderColor: theme.colors.primaryTint, backgroundColor: theme.colors.surface },
+                    ]}
                   >
-                    {percent}%
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        theme.typography.body,
+                        { fontSize: 18, fontWeight: "700", textAlign: "center", color: isSelected ? "#fff" : theme.colors.textSecondary },
+                      ]}
+                    >
+                      {percent}%
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
         );
 
       case 5:
         return (
-          <View className="gap-4">
-            <Text className="text-2xl font-bold text-slate-800">Cargas familiares</Text>
-            <Text className="text-slate-600">
+          <View style={{ gap: theme.spacing.md }}>
+            <Text style={[theme.typography.h2, { color: theme.colors.text }]}>Cargas familiares</Text>
+            <Text style={[theme.typography.body, { color: theme.colors.textSecondary }]}>
               Número de personas que dependen económicamente de ti (hijos, cónyuge, etc.).
             </Text>
             <Controller
               control={control}
               name="cargasFamiliares"
               render={({ field: { onChange, value } }) => (
-                <View className="flex-row items-center justify-center gap-6 py-6">
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: theme.spacing.lg, paddingVertical: theme.spacing.lg }}>
                   <Pressable
                     onPress={() => onChange(Math.max(MIN_CARGAS, value - 1))}
                     disabled={value <= MIN_CARGAS}
-                    className={`h-14 w-14 items-center justify-center rounded-full ${
-                      value <= MIN_CARGAS ? "bg-teal-100" : "bg-teal-600"
-                    }`}
+                    style={[
+                      { width: 56, height: 56, alignItems: "center", justifyContent: "center", borderRadius: theme.borderRadius.full },
+                      value <= MIN_CARGAS ? { backgroundColor: theme.colors.primaryTint } : { backgroundColor: theme.colors.primary },
+                    ]}
                   >
-                    <Text
-                      className={`text-2xl font-bold ${
-                        value <= MIN_CARGAS ? "text-teal-400" : "text-white"
-                      }`}
-                    >
-                      −
-                    </Text>
+                    <Text style={[theme.typography.h2, { fontWeight: "700", color: value <= MIN_CARGAS ? theme.colors.textSecondary : "#fff" }]}>−</Text>
                   </Pressable>
-                  <Text className="min-w-[3rem] text-center text-3xl font-bold text-slate-800">
+                  <Text style={[theme.typography.h1, { minWidth: 48, textAlign: "center", color: theme.colors.text }]}>
                     {value}
                   </Text>
                   <Pressable
                     onPress={() => onChange(Math.min(MAX_CARGAS, value + 1))}
                     disabled={value >= MAX_CARGAS}
-                    className={`h-14 w-14 items-center justify-center rounded-full ${
-                      value >= MAX_CARGAS ? "bg-teal-100" : "bg-teal-600"
-                    }`}
+                    style={[
+                      { width: 56, height: 56, alignItems: "center", justifyContent: "center", borderRadius: theme.borderRadius.full },
+                      value >= MAX_CARGAS ? { backgroundColor: theme.colors.primaryTint } : { backgroundColor: theme.colors.primary },
+                    ]}
                   >
-                    <Text
-                      className={`text-2xl font-bold ${
-                        value >= MAX_CARGAS ? "text-teal-400" : "text-white"
-                      }`}
-                    >
-                      +
-                    </Text>
+                    <Text style={[theme.typography.h2, { fontWeight: "700", color: value >= MAX_CARGAS ? theme.colors.textSecondary : "#fff" }]}>+</Text>
                   </Pressable>
                 </View>
               )}
@@ -309,11 +315,11 @@ export default function WizardScreen() {
 
       case 6:
         return (
-          <View className="gap-4">
-            <Text className="text-2xl font-bold text-slate-800">
+          <View style={{ gap: theme.spacing.md }}>
+            <Text style={[theme.typography.h2, { color: theme.colors.text }]}>
               Ingresos mensuales
             </Text>
-            <Text className="text-slate-600">
+            <Text style={[theme.typography.body, { color: theme.colors.textSecondary }]}>
               Aproximado del hogar (pon 0 si no tienes).
             </Text>
             <Controller
@@ -321,9 +327,13 @@ export default function WizardScreen() {
               name="income"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  className="w-full rounded-2xl border border-teal-200 bg-white p-4 text-xl text-slate-800"
+                  style={[
+                    theme.typography.body,
+                    { fontSize: 20, width: "100%", borderRadius: theme.borderRadius.lg, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.surface, padding: theme.spacing.md, color: theme.colors.text },
+                    buttonStyle.rounded,
+                  ]}
                   placeholder="$ 0"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.colors.textSecondary}
                   keyboardType="numeric"
                   value={value?.toString() ?? ""}
                   onChangeText={onChange}
@@ -339,26 +349,25 @@ export default function WizardScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-teal-50" edges={["top", "bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 p-6">
+        <View style={{ flex: 1, padding: theme.spacing.lg }}>
           {/* Omitir y ir al inicio */}
-          <View className="mb-4 flex-row justify-end">
+          <View style={{ marginBottom: theme.spacing.md, flexDirection: "row", justifyContent: "flex-end" }}>
             <Link href="/home" asChild>
               <TouchableOpacity>
-                <Text className="font-medium text-teal-600">Omitir</Text>
+                <Text style={[theme.typography.label, { color: theme.colors.primary }]}>Omitir</Text>
               </TouchableOpacity>
             </Link>
           </View>
 
           {/* Barra de progreso */}
-          <View className="mb-8 h-2 overflow-hidden rounded-full bg-teal-100">
+          <View style={{ marginBottom: theme.spacing.xl, height: 8, overflow: "hidden", borderRadius: theme.borderRadius.full, backgroundColor: theme.colors.primaryTint }}>
             <View
-              className="h-full rounded-full bg-teal-600"
-              style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
+              style={{ height: "100%", borderRadius: theme.borderRadius.full, backgroundColor: theme.colors.primary, width: `${(step / TOTAL_STEPS) * 100}%` }}
             />
           </View>
 
@@ -371,20 +380,28 @@ export default function WizardScreen() {
           </ScrollView>
 
           {/* Botones de navegación */}
-          <View className="mt-auto flex-row justify-between gap-3 pt-6">
+          <View style={{ marginTop: "auto", flexDirection: "row", justifyContent: "space-between", gap: theme.spacing.sm, paddingTop: theme.spacing.lg }}>
             <TouchableOpacity
               onPress={prevStep}
               disabled={step === 1}
-              className={`w-[45%] rounded-2xl p-4 ${step === 1 ? "opacity-0" : "bg-slate-200"}`}
+              style={[
+                { width: "45%", borderRadius: theme.borderRadius.lg, padding: theme.spacing.md },
+                buttonStyle.rounded,
+                step === 1 ? { opacity: 0 } : { backgroundColor: theme.colors.border },
+              ]}
             >
-              <Text className="text-center font-bold text-slate-700">Atrás</Text>
+              <Text style={[theme.typography.label, { textAlign: "center", color: theme.colors.textSecondary }]}>Atrás</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={nextStep}
-              className="w-[45%] rounded-2xl bg-teal-600 p-4 shadow-lg"
+              style={[
+                { width: "45%", borderRadius: theme.borderRadius.lg, padding: theme.spacing.md, backgroundColor: theme.colors.primary },
+                buttonStyle.rounded,
+                buttonStyle.shadowPrimary,
+              ]}
             >
-              <Text className="text-center font-bold text-white">
+              <Text style={[theme.typography.label, { textAlign: "center", fontWeight: "700", color: "#fff" }]}>
                 {step === TOTAL_STEPS ? "Finalizar" : "Siguiente"}
               </Text>
             </TouchableOpacity>
