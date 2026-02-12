@@ -12,10 +12,12 @@ interface BenefitsFeedProps {
   onPostular?: (item: BenefitItem) => void;
   /** Gamificación: notifica "Postulé" u "Ocultar" por beneficio (dispara confetti en pantalla lista) */
   onAction?: (benefitId: string, status: 'APPLIED' | 'DISMISSED') => void;
+  /** Navegación al perfil/wizard cuando hay missingFields */
+  onCompletarPerfil?: (item: BenefitItem) => void;
   ListEmptyComponent?: React.ComponentType | React.ReactElement | null;
 }
 
-export function BenefitsFeed({ data, onPostular, onAction, ListEmptyComponent }: BenefitsFeedProps) {
+export function BenefitsFeed({ data, onPostular, onAction, onCompletarPerfil, ListEmptyComponent }: BenefitsFeedProps) {
   const renderItem = ({ item }: { item: BenefitItem }) => (
     <View style={{ marginBottom: theme.spacing.lg }}>
       <BenefitCard
@@ -26,8 +28,10 @@ export function BenefitsFeed({ data, onPostular, onAction, ListEmptyComponent }:
         status={item.status}
         category={item.category}
         urlApply={item.urlApply}
+        missingLabels={item.missingLabels}
         onPostular={onPostular ? () => onPostular(item) : undefined}
         onAction={onAction}
+        onCompletarPerfil={onCompletarPerfil ? () => onCompletarPerfil(item) : undefined}
       />
     </View>
   );

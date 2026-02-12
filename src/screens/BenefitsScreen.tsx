@@ -204,6 +204,7 @@ export default function BenefitsScreen() {
             data={filteredBenefits}
             onPostular={(item) => item.id && router.push(`/benefit/${item.id}` as const)}
             onAction={handleAction}
+            onCompletarPerfil={() => router.push('/wizard')}
             ListEmptyComponent={
             <VStack spacing={theme.spacing.md} style={{ marginTop: theme.spacing.xl, alignItems: "center", paddingHorizontal: theme.spacing.md }}>
               <Text style={{ fontSize: 48 }}>🤷‍♂️</Text>
@@ -223,6 +224,7 @@ export default function BenefitsScreen() {
             if (item.id) router.push(`/benefit/${item.id}` as const);
           }}
           onAction={handleAction}
+          onCompletarPerfil={() => router.push('/wizard')}
           ListEmptyComponent={
             <VStack spacing={theme.spacing.md} style={{ marginTop: theme.spacing.xl, alignItems: "center", paddingHorizontal: theme.spacing.md }}>
               <Text style={{ fontSize: 48 }}>🤷‍♂️</Text>

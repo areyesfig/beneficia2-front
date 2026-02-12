@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
-import { ChevronLeft, Check, AlertTriangle, X } from "lucide-react-native";
+import { ChevronLeft, Check, AlertTriangle, X, CheckCircle2, CircleAlert } from "lucide-react-native";
 import React, { useLayoutEffect } from "react";
 import {
   View,
@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useUserMatches } from "@/features/benefits/api/useUserMatches";
+import { useUserMatches, type MissingReqItem } from "@/features/benefits/api/useUserMatches";
 import { cardStyle, buttonStyle } from "@/styles/screenStyles";
 import { openSafeUrl } from "@/utils/safe-open-url";
 import { theme } from "@/theme/theme";
@@ -82,9 +82,11 @@ export default function BenefitDetailScreen() {
   }
 
   const benefit = match?.benefit;
-  const status = match?.status ?? (fallbackStatus as 'ELIGIBLE' | 'MISSING_DATA') ?? 'MISSING_DATA';
-  const missingRequirements = match?.missingRequirements ?? [];
+  const status = (match?.match?.status ?? match?.status ?? fallbackStatus) as string;
   const isEligible = status === "ELIGIBLE";
+  const explanation = match?.match?.explanation;
+  const missingReqs = match?.match?.missingReqs ?? [];
+  const missingRequirements = match?.missingRequirements ?? [];
 
   const displayName = benefit?.name ?? fallbackTitle ?? 'Beneficio';
   const displayInstitution = benefit?.institution ?? fallbackInstitution;
@@ -177,7 +179,75 @@ export default function BenefitDetailScreen() {
           </Text>
         </View>
 
-        {!isEligible && missingRequirements.length > 0 && (
+        {(explanation?.eligibleFacts?.length ?? 0) > 0 || (explanation?.missingFacts?.length ?? 0) > 0 ? (
+          <View style={[{ marginBottom: theme.spacing.xl, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
+            <Text style={[theme.typography.h3, { color: theme.colors.text, marginBottom: theme.spacing.md }]}>
+              Por qué te aparece
+            </Text>
+            {(explanation?.eligibleFacts?.length ?? 0) > 0 && (
+              <VStack spacing={theme.spacing.sm} style={{ marginBottom: theme.spacing.md }}>
+                {explanation?.eligibleFacts?.map((f: { key: string; label: string; value: unknown }, i: number) => (
+                  <HStack key={`ef-${f.key}-${i}`} spacing={theme.spacing.sm}>
+                    <CheckCircle2 size={20} color={theme.colors.success} strokeWidth={2} />
+                    <Text style={[theme.typography.body, { flex: 1, color: theme.colors.text }]}>
+                      {f.label}: {String(f.value)}
+                    </Text>
+                  </HStack>
+                ))}
+              </VStack>
+            )}
+            {(explanation?.missingFacts?.length ?? 0) > 0 && (
+              <VStack spacing={theme.spacing.sm}>
+                {explanation?.missingFacts?.map((f: { key: string; label: string; needed?: unknown }, i: number) => (
+                  <HStack key={`mf-${f.key}-${i}`} spacing={theme.spacing.sm}>
+                    <CircleAlert size={20} color={theme.colors.warning} strokeWidth={2} />
+                    <Text style={[theme.typography.body, { flex: 1, color: theme.colors.text }]}>
+                      {f.label}{f.needed != null ? ` (${String(f.needed)})` : ''}
+                    </Text>
+                  </HStack>
+                ))}
+              </VStack>
+            )}
+          </View>
+        ) : null}
+
+        {missingReqs.length > 0 ? (
+          <View style={[{ marginBottom: theme.spacing.xl, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
+            <Text style={[theme.typography.h3, { color: theme.colors.text, marginBottom: theme.spacing.md }]}>
+              Qué hacer
+            </Text>
+            <VStack spacing={theme.spacing.sm}>
+              {missingReqs.map((req: MissingReqItem, index: number) => (
+                <Pressable
+                  key={`${req.key}-${index}`}
+                  onPress={() => {
+                    if (req.actionUrl) openSafeUrl(req.actionUrl!);
+                    else router.push("/wizard");
+                  }}
+                  style={[
+                    {
+                      flexDirection: "row",
+                      alignItems: "center",
+                      paddingVertical: theme.spacing.sm,
+                      paddingHorizontal: theme.spacing.sm,
+                      borderRadius: theme.borderRadius.md,
+                      backgroundColor: theme.colors.background,
+                    },
+                    cardStyle.wrapper,
+                  ]}
+                >
+                  <View style={[{ width: 24, height: 24, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.warningTint }, cardStyle.wrapper]}>
+                    <X size={14} color={theme.colors.warning} strokeWidth={2} />
+                  </View>
+                  <Text style={[theme.typography.body, { flex: 1, color: theme.colors.text, marginLeft: theme.spacing.sm }]}>{req.label}</Text>
+                  <Text style={[theme.typography.label, { color: theme.colors.primary }]}>
+                    {req.actionLabel ?? "Completar perfil"}
+                  </Text>
+                </Pressable>
+              ))}
+            </VStack>
+          </View>
+        ) : !isEligible && missingRequirements.length > 0 ? (
           <View style={[{ marginBottom: theme.spacing.xl, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
             <Text style={[theme.typography.caption, { fontWeight: "700", marginBottom: theme.spacing.md, color: theme.colors.textSecondary, letterSpacing: 0.5 }]}>
               ¿Qué me falta?
@@ -198,7 +268,7 @@ export default function BenefitDetailScreen() {
               ))}
             </VStack>
           </View>
-        )}
+        ) : null}
       </ScrollView>
 
       <View

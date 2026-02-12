@@ -32,8 +32,11 @@ export interface BenefitCardProps {
   status: BenefitStatus;
   category?: string;
   urlApply?: string | null;
+  /** Labels para "Te falta: X, Y" (1-2 líneas) */
+  missingLabels?: string[];
   onPostular?: () => void;
   onAction?: (benefitId: string, status: ApplicationActionStatus) => void;
+  onCompletarPerfil?: () => void;
 }
 
 const CATEGORY_ICON: Record<string, { Icon: LucideIcon; bg: string; color: string }> = {
@@ -63,12 +66,18 @@ export function BenefitCard({
   status,
   category,
   urlApply,
+  missingLabels,
   onPostular,
   onAction,
+  onCompletarPerfil,
 }: BenefitCardProps) {
   const isEligible = status === 'ELIGIBLE';
+  const hasMissing = (missingLabels?.length ?? 0) > 0;
   const { Icon, bg, color } = getCategoryStyle(category);
   const showActionBar = onAction && id;
+  const teFaltaLine = hasMissing
+    ? `Te falta: ${missingLabels!.slice(0, 3).join(', ')}`
+    : null;
 
   const handleApply = async () => {
     if (urlApply) await openSafeUrl(urlApply);
@@ -103,7 +112,7 @@ export function BenefitCard({
               { fontWeight: '600', color: isEligible ? theme.colors.successText : theme.colors.warningText },
             ]}
           >
-            {isEligible ? 'Disponible' : 'Falta info'}
+            {isEligible ? '✅ Elegible' : '⚠️ Falta info'}
           </Text>
         </View>
       </HStack>
@@ -111,6 +120,11 @@ export function BenefitCard({
       <Text style={[theme.typography.h3, { color: theme.colors.text }]} numberOfLines={2}>
         {title}
       </Text>
+      {teFaltaLine ? (
+        <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary, marginTop: theme.spacing.xs }]} numberOfLines={2}>
+          {teFaltaLine}
+        </Text>
+      ) : null}
       <Text style={[theme.typography.h2, { color: theme.colors.primaryDark, marginTop: theme.spacing.sm }]}>
         {formatCurrency(amount)}
       </Text>
@@ -145,16 +159,29 @@ export function BenefitCard({
           >
             <Text style={[theme.typography.label, { textAlign: 'center', color: theme.colors.textSecondary }]}>Ocultar</Text>
           </Pressable>
-          <Pressable
-            onPress={handleApply}
-            style={[
-              { flex: 1, paddingVertical: theme.spacing.sm, backgroundColor: theme.colors.primary },
-              buttonStyle.rounded,
-              buttonStyle.shadowPrimary,
-            ]}
-          >
-            <Text style={[theme.typography.label, { textAlign: 'center', fontWeight: '700', color: '#fff' }]}>Postular 🚀</Text>
-          </Pressable>
+          {hasMissing && onCompletarPerfil ? (
+            <Pressable
+              onPress={onCompletarPerfil}
+              style={[
+                { flex: 1, paddingVertical: theme.spacing.sm, backgroundColor: theme.colors.primary },
+                buttonStyle.rounded,
+                buttonStyle.shadowPrimary,
+              ]}
+            >
+              <Text style={[theme.typography.label, { textAlign: 'center', fontWeight: '700', color: '#fff' }]}>Completar perfil</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={handleApply}
+              style={[
+                { flex: 1, paddingVertical: theme.spacing.sm, backgroundColor: theme.colors.primary },
+                buttonStyle.rounded,
+                buttonStyle.shadowPrimary,
+              ]}
+            >
+              <Text style={[theme.typography.label, { textAlign: 'center', fontWeight: '700', color: '#fff' }]}>Postular 🚀</Text>
+            </Pressable>
+          )}
         </HStack>
       ) : (
         <View style={{ marginTop: theme.spacing.md, flexDirection: 'row', justifyContent: 'flex-end' }}>
