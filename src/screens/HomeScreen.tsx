@@ -1,12 +1,32 @@
-import { Link } from "expo-router";
-import { View, Text } from "react-native";
+import { Link, useRouter } from "expo-router";
+import { View, Text, Alert } from "react-native";
 import { Wallet, FileCheck } from "lucide-react-native";
 import { cardStyle, chipStyle } from "@/styles/screenStyles";
 import { theme } from "@/theme/theme";
 import { VStack, HStack } from "@/theme/layout";
 import { AnimatedPressableScale } from "@/components/AnimatedPressable";
+import { clearWizardData } from "@/features/profile/wizardStorage";
 
 export default function HomeScreen() {
+  const router = useRouter();
+
+  const handleActualizarPerfil = () => {
+    Alert.alert(
+      "Actualizar datos",
+      "Se borrarán los datos guardados. Podrás volver a ingresarlos desde el inicio. ¿Continuar?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Continuar",
+          onPress: async () => {
+            await clearWizardData();
+            router.replace("/wizard");
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <VStack spacing={theme.spacing.sm} style={{ paddingHorizontal: theme.spacing.md, paddingTop: theme.spacing.xl, paddingBottom: theme.spacing.xl }}>
@@ -70,57 +90,56 @@ export default function HomeScreen() {
           </AnimatedPressableScale>
         </Link>
 
-        <Link href="/profile/rsh" asChild>
-          <AnimatedPressableScale
-            style={[
-              { overflow: "hidden", backgroundColor: theme.colors.surface, padding: theme.spacing.md },
-              cardStyle.wrapper,
-              cardStyle.shadow,
-            ]}
-          >
-            <HStack spacing={theme.spacing.md}>
-              <View
-                style={[
-                  {
-                    width: 56,
-                    height: 56,
-                    borderRadius: theme.borderRadius.lg,
-                    backgroundColor: theme.colors.border,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  },
-                  cardStyle.wrapper,
-                ]}
-              >
-                <FileCheck size={28} color={theme.colors.textSecondary} strokeWidth={2} />
-              </View>
-              <VStack spacing={2} style={{ flex: 1 }}>
-                <Text style={[theme.typography.body, { fontWeight: "600", color: theme.colors.text }]}>
-                  Registro Social de Hogares
-                </Text>
-                <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>
-                  Completa tu perfil para postular
-                </Text>
-              </VStack>
-              <View
-                style={[
-                  {
-                    width: 40,
-                    height: 40,
-                    borderRadius: theme.borderRadius.full,
-                    borderWidth: 2,
-                    borderColor: theme.colors.primaryTintBorder,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  },
-                  chipStyle.rounded,
-                ]}
-              >
-                <Text style={[theme.typography.body, { fontWeight: "600", color: theme.colors.primary }]}>→</Text>
-              </View>
-            </HStack>
-          </AnimatedPressableScale>
-        </Link>
+        <AnimatedPressableScale
+          onPress={handleActualizarPerfil}
+          style={[
+            { overflow: "hidden", backgroundColor: theme.colors.surface, padding: theme.spacing.md },
+            cardStyle.wrapper,
+            cardStyle.shadow,
+          ]}
+        >
+          <HStack spacing={theme.spacing.md}>
+            <View
+              style={[
+                {
+                  width: 56,
+                  height: 56,
+                  borderRadius: theme.borderRadius.lg,
+                  backgroundColor: theme.colors.border,
+                  alignItems: "center",
+                  justifyContent: "center",
+                },
+                cardStyle.wrapper,
+              ]}
+            >
+              <FileCheck size={28} color={theme.colors.textSecondary} strokeWidth={2} />
+            </View>
+            <VStack spacing={2} style={{ flex: 1 }}>
+              <Text style={[theme.typography.body, { fontWeight: "600", color: theme.colors.text }]}>
+                Registro Social de Hogares
+              </Text>
+              <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>
+                Actualizar datos o limpiar para volver a ingresar
+              </Text>
+            </VStack>
+            <View
+              style={[
+                {
+                  width: 40,
+                  height: 40,
+                  borderRadius: theme.borderRadius.full,
+                  borderWidth: 2,
+                  borderColor: theme.colors.primaryTintBorder,
+                  alignItems: "center",
+                  justifyContent: "center",
+                },
+                chipStyle.rounded,
+              ]}
+            >
+              <Text style={[theme.typography.body, { fontWeight: "600", color: theme.colors.primary }]}>→</Text>
+            </View>
+          </HStack>
+        </AnimatedPressableScale>
       </VStack>
     </View>
   );

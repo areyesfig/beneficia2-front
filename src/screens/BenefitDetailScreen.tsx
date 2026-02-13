@@ -21,6 +21,7 @@ export default function BenefitDetailScreen() {
   const params = useLocalSearchParams<{
     id: string;
     title?: string;
+    description?: string;
     status?: string;
     deadline?: string;
     amount?: string;
@@ -38,6 +39,7 @@ export default function BenefitDetailScreen() {
       : null;
 
   const fallbackTitle = typeof params.title === 'string' ? params.title : params.title?.[0];
+  const fallbackDescription = typeof params.description === 'string' ? params.description : params.description?.[0];
   const fallbackStatus = typeof params.status === 'string' ? params.status : params.status?.[0];
   const fallbackDeadline = typeof params.deadline === 'string' ? params.deadline : params.deadline?.[0];
   const fallbackInstitution = typeof params.institution === 'string' ? params.institution : params.institution?.[0];
@@ -60,7 +62,10 @@ export default function BenefitDetailScreen() {
     });
   }, [navigation, router, displayNameForHeader]);
 
-  if (isLoading || !id) {
+  // Mostrar loader solo cuando no tenemos nada que mostrar (ej. deep link sin params). Si venimos de la lista, ya tenemos title/description en params → pintar el detalle al instante.
+  const canShowFromParams = !!(fallbackTitle ?? fallbackDescription);
+  const hasNoDataYet = !matches && isLoading && !canShowFromParams;
+  if (hasNoDataYet || !id) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background }}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -90,7 +95,7 @@ export default function BenefitDetailScreen() {
 
   const displayName = benefit?.name ?? fallbackTitle ?? 'Beneficio';
   const displayInstitution = benefit?.institution ?? fallbackInstitution;
-  const displayDescription = benefit?.description ?? 'Sin descripción disponible.';
+  const displayDescription = benefit?.description ?? fallbackDescription ?? 'Sin descripción disponible.';
   const displayDeadline = benefit?.closesAt ?? fallbackDeadline ?? '--';
 
   const handlePrimaryAction = async () => {
@@ -101,7 +106,7 @@ export default function BenefitDetailScreen() {
         Alert.alert("Error", "No se pudo abrir el enlace de postulación.");
       }
     } else {
-      router.push("/profile/rsh");
+      router.push("/wizard");
     }
   };
 

@@ -42,9 +42,12 @@ function getCategoryStyle(category?: string) {
  * Card compacta para vista Bento/Grid (ui-ux-pro-max).
  * Solo navegación al detalle; touch target ≥44px.
  */
+const MAX_DESCRIPTION_PARAM_LENGTH = 800;
+
 export function BenefitCardCompact({
   id,
   title,
+  description,
   amount,
   deadline,
   status,
@@ -85,11 +88,13 @@ export function BenefitCardCompact({
   ];
 
   if (id) {
+    const descParam = description?.trim();
     const query = new URLSearchParams({
       title: title ?? "",
       status,
       deadline: deadline ?? "",
       amount: amount != null ? String(amount) : "",
+      ...(descParam != null && descParam !== "" ? { description: descParam.length > MAX_DESCRIPTION_PARAM_LENGTH ? descParam.slice(0, MAX_DESCRIPTION_PARAM_LENGTH) + "…" : descParam } : {}),
     });
     const href = `/benefit/${id}?${query.toString()}`;
     return (

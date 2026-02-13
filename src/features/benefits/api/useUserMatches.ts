@@ -128,6 +128,7 @@ function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
   return {
     id: b.id,
     title,
+    description: b.description ?? undefined,
     amount,
     deadline,
     status,
@@ -140,6 +141,10 @@ function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
 function getUserId(): string {
   return getCurrentUserId() ?? ANONYMOUS_DEV_USER_ID;
 }
+
+/** Caché de matches: 5 min frescos, 30 min en memoria; sin refetch al montar o al volver a la app */
+const MATCHES_STALE_TIME_MS = 5 * 60 * 1000;
+const MATCHES_GC_TIME_MS = 30 * 60 * 1000;
 
 export const useUserMatches = () => {
   const userId = getUserId();
@@ -154,6 +159,10 @@ export const useUserMatches = () => {
       );
       return data;
     },
+    staleTime: MATCHES_STALE_TIME_MS,
+    gcTime: MATCHES_GC_TIME_MS,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 

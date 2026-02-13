@@ -25,13 +25,16 @@ const getApiUrl = (): string => {
     }
     return url;
   }
-  // Solo desarrollo local: fallback para emulador/dispositivo en la misma red
+  // Solo desarrollo local: emulador Android usa 10.0.2.2 para alcanzar el host; resto usa EXPO_PUBLIC_DEV_API_HOST
   if (__DEV__) {
-    const devHost = process.env.EXPO_PUBLIC_DEV_API_HOST ?? '192.168.68.107';
+    const devHost =
+      process.env.EXPO_PUBLIC_DEV_API_HOST ??
+      (Platform.OS === 'android' ? '10.0.2.2' : '192.168.68.107');
+    const port = process.env.EXPO_PUBLIC_DEV_API_PORT ?? '3000';
     return Platform.select({
-      ios: `http://${devHost}:3000`,
-      android: `http://${devHost}:3000`,
-      default: `http://${devHost}:3000`,
+      ios: `http://${devHost}:${port}`,
+      android: `http://${devHost}:${port}`,
+      default: `http://${devHost}:${port}`,
     }) as string;
   }
   return 'https://api.example.com';

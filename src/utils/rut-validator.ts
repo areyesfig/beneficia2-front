@@ -39,16 +39,20 @@ export function getCheckDigit(rutBody: string): string {
 
 /**
  * Valida un RUT chileno (con o sin puntos/guión).
- * Acepta formato: 12.345.678-9, 12345678-9, 123456789.
+ * Acepta formato: 12.345.678-9, 12345678-9, 123456789, 1.234.567-K.
+ * El cuerpo puede tener 7 u 8 dígitos (estándar chileno).
  */
 export function validateRut(rut: string): boolean {
+  if (rut == null || typeof rut !== 'string') return false;
   const cleaned = cleanRut(rut);
-  if (cleaned.length < 2) return false;
+  // RUT válido: 7 u 8 dígitos en cuerpo + 1 dígito verificador (0-9 o K) = 8 o 9 caracteres
+  if (cleaned.length < 8 || cleaned.length > 9) return false;
 
   const body = cleaned.slice(0, -1);
   const givenDigit = cleaned.slice(-1);
 
   if (!/^\d+$/.test(body)) return false;
+  if (body.length !== 7 && body.length !== 8) return false;
   if (!/^[\dK]$/.test(givenDigit)) return false;
 
   const expectedDigit = getCheckDigit(body);

@@ -14,6 +14,13 @@ describe("rut-validator", () => {
     it("rechaza string vacío", () => {
       expect(validateRut("")).toBe(false);
     });
+    it("acepta RUT con dígito verificador K", () => {
+      expect(validateRut("6.000.000-K")).toBe(true);
+      expect(validateRut("6000000K")).toBe(true);
+    });
+    it("acepta otro RUT válido (11.111.111-1)", () => {
+      expect(validateRut("11.111.111-1")).toBe(true);
+    });
   });
 
   describe("formatRut", () => {

@@ -1,13 +1,14 @@
+import { useAuthStore } from '@/features/auth/authStore';
+
 /**
- * Identificador del usuario actual.
- * - En producción: debe venir de tu capa de autenticación (AuthContext, sesión, etc.).
- * - En desarrollo: opcionalmente EXPO_PUBLIC_DEV_USER_ID en .env para probar sin login.
- * NUNCA subas .env con valores reales; usa .env.example como plantilla.
+ * Identificador del usuario actual (guest o registrado).
+ * Viene del auth store; tras bootstrapAuth() siempre hay un userId.
+ * En desarrollo sin auth: EXPO_PUBLIC_DEV_USER_ID en .env para override.
  */
 export function getCurrentUserId(): string | null {
   const fromEnv = process.env.EXPO_PUBLIC_DEV_USER_ID;
   if (fromEnv && fromEnv.trim()) return fromEnv.trim();
-  return null;
+  return useAuthStore.getState().userId ?? null;
 }
 
 /**

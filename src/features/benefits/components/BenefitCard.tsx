@@ -27,6 +27,7 @@ export type ApplicationActionStatus = 'APPLIED' | 'DISMISSED';
 export interface BenefitCardProps {
   id?: string;
   title: string;
+  description?: string | null;
   amount?: number | null;
   deadline: string;
   status: BenefitStatus;
@@ -58,9 +59,12 @@ function getCategoryStyle(category?: string) {
   return CATEGORY_ICON[key] ?? CATEGORY_ICON.default;
 }
 
+const MAX_DESCRIPTION_PARAM_LENGTH = 800;
+
 export function BenefitCard({
   id,
   title,
+  description,
   amount,
   deadline,
   status,
@@ -198,11 +202,13 @@ export function BenefitCard({
   ];
 
   if (id) {
+    const descParam = description?.trim();
     const query = new URLSearchParams({
       title: title ?? '',
       status,
       deadline: deadline ?? '',
       amount: amount != null ? String(amount) : '',
+      ...(descParam != null && descParam !== '' ? { description: descParam.length > MAX_DESCRIPTION_PARAM_LENGTH ? descParam.slice(0, MAX_DESCRIPTION_PARAM_LENGTH) + '…' : descParam } : {}),
     });
     const href = `/benefit/${id}?${query.toString()}`;
     return (

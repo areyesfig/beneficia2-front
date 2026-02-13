@@ -16,9 +16,10 @@ import {
   List,
   type LucideIcon,
 } from "lucide-react-native";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { useUserMatches, mapMatchesToBenefitItems } from "@/features/benefits/api/useUserMatches";
+import { getProfile } from "@/features/profile/api/profileApi";
 import {
   BENEFIT_CATEGORIES,
   normalizeCategoryForFilter,
@@ -46,14 +47,14 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
 const USE_MOCK_FOR_TESTING = true;
 
 const MOCK_BENEFITS: BenefitItem[] = [
-  { id: "mock-1", title: "Bono al Trabajo de la Mujer", amount: 98750, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
-  { id: "mock-2", title: "Subsidio Único Familiar", amount: 45000, deadline: "15 Abr 2025", status: "MISSING_DATA", category: "BONOS_ESTATALES" },
-  { id: "mock-3", title: "Bono por Asistencia Escolar", amount: 21000, deadline: "30 Abr 2025", status: "ELIGIBLE", category: "JUVENTUD_Y_ESTUDIOS" },
-  { id: "mock-4", title: "Subsidio de Arriendo", amount: 120000, deadline: "30 Jun 2025", status: "ELIGIBLE", category: "VIVIENDA" },
-  { id: "mock-5", title: "Bono Marzo (Aporte Familiar)", amount: 61793, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
-  { id: "mock-6", title: "Subsidio al Pago del Consumo de Agua Potable", amount: 25000, deadline: "15 Dic 2025", status: "MISSING_DATA", category: "VIVIENDA" },
-  { id: "mock-7", title: "Fondo de Salud para Fonasa", amount: null, deadline: "31 Dic 2025", status: "ELIGIBLE", category: "SALUD_Y_CUIDADOS" },
-  { id: "mock-8", title: "Capital Semilla Emprendimiento", amount: 500000, deadline: "30 Sep 2025", status: "MISSING_DATA", category: "EMPRENDIMIENTO" },
+  { id: "mock-1", title: "Bono al Trabajo de la Mujer", description: "Bono mensual para mujeres que trabajen de forma dependiente o independiente y pertenezcan a los tramos más vulnerables. Monto de $98.750 por carga familiar elegible.", amount: 98750, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
+  { id: "mock-2", title: "Subsidio Único Familiar", description: "Transferencia monetaria para familias con hijos o hijas que cumplan requisitos de vulnerabilidad. Incluye montos por carga y por maternidad.", amount: 45000, deadline: "15 Abr 2025", status: "MISSING_DATA", category: "BONOS_ESTATALES" },
+  { id: "mock-3", title: "Bono por Asistencia Escolar", description: "Incentivo al estudio para estudiantes entre 6 y 18 años que mantengan asistencia escolar sobre 85%. Se paga dos veces al año.", amount: 21000, deadline: "30 Abr 2025", status: "ELIGIBLE", category: "JUVENTUD_Y_ESTUDIOS" },
+  { id: "mock-4", title: "Subsidio de Arriendo", description: "Aporte mensual del Estado para ayudar a pagar el arriendo de la vivienda. Dirigido a familias del primer y segundo quintil que cumplan requisitos.", amount: 120000, deadline: "30 Jun 2025", status: "ELIGIBLE", category: "VIVIENDA" },
+  { id: "mock-5", title: "Bono Marzo (Aporte Familiar)", description: "Monto de $61.793 por carga familiar o familiar a cargo. Se paga una vez al año en marzo a quienes cumplan los requisitos de elegibilidad.", amount: 61793, deadline: "31 Mar 2025", status: "ELIGIBLE", category: "BONOS_ESTATALES" },
+  { id: "mock-6", title: "Subsidio al Pago del Consumo de Agua Potable", description: "Ayuda para el pago del consumo de agua potable en sectores rurales o con alto costo. Hasta $25.000 según consumo y comuna.", amount: 25000, deadline: "15 Dic 2025", status: "MISSING_DATA", category: "VIVIENDA" },
+  { id: "mock-7", title: "Fondo de Salud para Fonasa", description: "Acceso a prestaciones de salud para personas inscritas en Fonasa. Incluye consultas, exámenes y tratamientos según tramo.", amount: null, deadline: "31 Dic 2025", status: "ELIGIBLE", category: "SALUD_Y_CUIDADOS" },
+  { id: "mock-8", title: "Capital Semilla Emprendimiento", description: "Financiamiento para iniciar o fortalecer un emprendimiento. Dirigido a personas que cumplan requisitos de fomento productivo.", amount: 500000, deadline: "30 Sep 2025", status: "MISSING_DATA", category: "EMPRENDIMIENTO" },
 ];
 
 export default function BenefitsScreen() {
@@ -70,6 +71,19 @@ export default function BenefitsScreen() {
       : MOCK_BENEFITS;
 
   const userId = getCurrentUserId() ?? ANONYMOUS_DEV_USER_ID;
+  const [profileName, setProfileName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    getProfile(userId).then((profile) => {
+      const name = profile?.name?.trim();
+      setProfileName(name && name.length > 0 ? name : null);
+    });
+  }, [userId]);
+
+  const userInitial = profileName && profileName.length > 0
+    ? profileName.charAt(0).toUpperCase()
+    : "J";
 
   const handleAction = async (benefitId: string, status: "APPLIED" | "DISMISSED") => {
     if (status === "APPLIED") {
@@ -135,7 +149,7 @@ export default function BenefitsScreen() {
                 chipStyle.rounded,
               ]}
             >
-              <Text style={[theme.typography.label, { fontWeight: "700", color: "#fff" }]}>J</Text>
+              <Text style={[theme.typography.label, { fontWeight: "700", color: "#fff" }]}>{userInitial}</Text>
             </View>
           </HStack>
         </HStack>

@@ -23,6 +23,7 @@ export function BenefitsFeed({ data, onPostular, onAction, onCompletarPerfil, Li
       <BenefitCard
         id={item.id}
         title={item.title}
+        description={item.description}
         amount={item.amount}
         deadline={item.deadline}
         status={item.status}
