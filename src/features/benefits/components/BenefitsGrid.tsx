@@ -11,13 +11,14 @@ interface BenefitsGridProps {
   onAction?: (benefitId: string, status: "APPLIED" | "DISMISSED") => void;
   onCompletarPerfil?: (item: BenefitItem) => void;
   ListEmptyComponent?: React.ReactElement | null;
+  refreshControl?: React.ReactElement;
 }
 
 /**
  * Vista Bento (ui-ux-pro-max): primera card destacada ancho completo,
  * resto en grid 2 columnas con cards compactas.
  */
-export function BenefitsGrid({ data, onPostular, onAction, onCompletarPerfil, ListEmptyComponent }: BenefitsGridProps) {
+export function BenefitsGrid({ data, onPostular, onAction, onCompletarPerfil, ListEmptyComponent, refreshControl }: BenefitsGridProps) {
   if (data.length === 0 && ListEmptyComponent) {
     return <>{ListEmptyComponent}</>;
   }
@@ -31,6 +32,7 @@ export function BenefitsGrid({ data, onPostular, onAction, onCompletarPerfil, Li
     <ScrollView
       contentContainerStyle={{ paddingHorizontal: paddingH, paddingTop: paddingV, paddingBottom: 32 }}
       showsVerticalScrollIndicator={false}
+      refreshControl={refreshControl}
     >
       {featured && (
         <View style={{ marginBottom: gap }}>

@@ -56,70 +56,58 @@ En producción configura `EXPO_PUBLIC_API_URL` en tu pipeline o EAS Secrets.
 
 ```
 app/                    # Rutas (expo-router)
-  index.tsx             # Redirige a /wizard
+  index.tsx             # Landing: hero + CTA "Ver mis beneficios" → /wizard
   wizard.tsx            # Wizard de onboarding (perfil + RSH)
   home.tsx              # Pantalla principal
   benefits.tsx          # Lista de beneficios con filtros por categoría
   benefit/[id].tsx      # Detalle de beneficio
-  profile/rsh.tsx      # Redirige a /wizard
 src/
   config/               # API URL, user id (env)
   constants/            # Categorías de beneficios (mapeo backend → UI)
   features/
     benefits/           # API useUserMatches, BenefitCard, BenefitsFeed
-    profile/            # RSHWizard (legacy, ya unificado en WizardScreen)
-  screens/              # WizardScreen (wizard unificado)
-  api/                  # Cliente axios
-  components/           # ErrorBoundary, UI
-  utils/                # format-currency, rut-validator
+    profile/            # profileApi, wizardStorage
+  screens/              # WizardScreen, HomeScreen, BenefitsScreen, BenefitDetailScreen
+  api/                  # Cliente axios + interceptors auth
+  components/           # ErrorBoundary, AnimatedPressable
+  utils/                # format-currency, rut-validator, safe-open-url
 ```
 
 ## Flujo principal
 
-1. **Entrada** → Redirección a `/wizard`.
+1. **Landing (index)** — El usuario ve el valor de la app y toca "Ver mis beneficios" → `/wizard`.
 2. **Wizard** (6 pasos): nombre, edad, RUT, tramo RSH, cargas familiares, ingresos. Al finalizar se envía el perfil al backend y se navega a `/home`.
-3. **Home** → Acceso a “Ver beneficios” y “Registro Social de Hogares” (lleva al wizard).
-4. **Beneficios** → Lista con chips por categoría (Todo, Bonos, Vivienda, Salud, etc.) y detalle por beneficio con estado (elegible / falta info).
+3. **Home** — Acceso a "Ver beneficios" y "Actualizar datos" (vuelve al wizard).
+4. **Beneficios** — Lista desde el API con chips por categoría (Todo, Vivienda, Salud, Estudios, Pensiones, Empleo, etc.) y detalle por beneficio con estado (elegible / falta info). Pull-to-refresh para actualizar.
 
 ## Backend
 
 La app espera un backend con al menos:
 
-- `POST /auth/guest`, `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `GET /auth/me`
+- `POST /auth/guest`, `POST /auth/refresh`
 - `GET /profile/:userId`, `PATCH /profile/:userId`
 - `GET /benefits/:userId/match`
 
 Repositorio del backend: [Beneficia2](https://github.com/areyesfig/Beneficia2).
 
-## Checklist de pruebas manuales
+## Checklist de pruebas manuales (MVP)
 
-Ejecutar con el backend local levantado y la app en Expo Go o emulador.
+Ejecutar con el backend local levantado y la app en Expo Go o emulador. Ver también [docs/MVP_CHECKLIST.md](docs/MVP_CHECKLIST.md).
 
-### Auth y onboarding
+### Onboarding y perfil
 
-- [ ] **Arranque**: La app muestra carga breve y luego entra al wizard (o a home si ya hay perfil completo).
+- [ ] **Arranque**: La app muestra la landing; al tocar "Ver mis beneficios" se abre el wizard.
 - [ ] **Wizard sin perfil**: Completar los 6 pasos (nombre, edad, RUT, RSH, cargas, ingresos). Al finalizar se guarda el perfil y redirige a `/home`.
 - [ ] **Wizard con perfil**: Si ya existe perfil en el backend, al abrir el wizard los campos aparecen prellenados.
-- [ ] **Guard de perfil**: Sin perfil completo, al intentar ir a “Ver beneficios” o Home por URL, la app redirige a `/wizard`.
-- [ ] **Acceso a wizard con perfil completo**: Desde Home, poder entrar al wizard por “Registro Social de Hogares” o equivalente (el wizard sigue accesible aunque el usuario sea registered).
-
-### Registro (guest → cuenta)
-
-- [ ] **Crear cuenta desde wizard**: En el último paso del wizard, tocar “Crear cuenta para guardar y recibir alertas”. Lleva a `/register`.
-- [ ] **Crear cuenta desde home**: En Home, tocar “Crear cuenta para guardar y recibir alertas”. Lleva a `/register`.
-- [ ] **Formulario register**: Solo email y contraseña (mín. 8 caracteres). Enviar: se convierte el mismo usuario guest a registered, se guardan nuevos tokens y se redirige a `/home` (mismo userId; beneficios y perfil se mantienen).
-- [ ] **Email duplicado**: Intentar registrar con un email ya usado; debe mostrar error y no crear usuario nuevo.
-- [ ] **Seguir sin cuenta**: En `/register`, “Seguir sin cuenta” lleva a `/home`.
+- [ ] **Guard de perfil**: Sin perfil completo, al intentar ir a "Ver beneficios" o Home, la app redirige a `/wizard`.
+- [ ] **Actualizar datos**: Desde Home, "Actualizar datos" limpia y vuelve al wizard.
 
 ### Sesión y beneficios
 
-- [ ] **Beneficios**: En Home, “Ver beneficios” muestra la lista según el perfil (guest o registered).
-- [ ] **Cerrar y reabrir app**: Tras registrar, al reabrir la app se mantiene la sesión (no pide login de nuevo).
-- [ ] **Refresh token**: Dejar la app en segundo plano más de 15 min (o simular token expirado) y usar de nuevo; si el refresh funciona, las peticiones siguen sin pedir login.
-
-### Opcional
-
-- [ ] **Login** (si existe pantalla): Iniciar sesión con email/contraseña de un usuario ya registrado; debe devolver tokens y redirigir correctamente.
+- [ ] **Beneficios**: En Home, "Ver beneficios" muestra la lista desde el API según el perfil (guest).
+- [ ] **Pull-to-refresh**: En la lista de beneficios, tirar para actualizar y ver nuevos beneficios si el backend los tiene.
+- [ ] **Detalle y postular**: Entrar a un beneficio, tocar "Postular" y que se abra el enlace oficial; el estado se envía al backend.
+- [ ] **Cerrar y reabrir app**: Al reabrir, la sesión guest se mantiene (tokens en SecureStore).
 
 ## Licencia
 

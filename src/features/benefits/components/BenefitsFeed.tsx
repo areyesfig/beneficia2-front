@@ -15,9 +15,10 @@ interface BenefitsFeedProps {
   /** Navegación al perfil/wizard cuando hay missingFields */
   onCompletarPerfil?: (item: BenefitItem) => void;
   ListEmptyComponent?: React.ComponentType | React.ReactElement | null;
+  refreshControl?: React.ReactElement;
 }
 
-export function BenefitsFeed({ data, onPostular, onAction, onCompletarPerfil, ListEmptyComponent }: BenefitsFeedProps) {
+export function BenefitsFeed({ data, onPostular, onAction, onCompletarPerfil, ListEmptyComponent, refreshControl }: BenefitsFeedProps) {
   const renderItem = ({ item }: { item: BenefitItem }) => (
     <View style={{ marginBottom: theme.spacing.lg }}>
       <BenefitCard
@@ -46,6 +47,7 @@ export function BenefitsFeed({ data, onPostular, onAction, onCompletarPerfil, Li
       contentContainerStyle={{ paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg, paddingBottom: 32 }}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={ListEmptyComponent}
+      refreshControl={refreshControl}
     />
   );
 }

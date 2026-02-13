@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import {
   Home,
   Gift,
+  Briefcase,
   CircleDollarSign,
   ChevronRight,
   GraduationCap,
@@ -43,6 +44,8 @@ export interface BenefitCardProps {
 const CATEGORY_ICON: Record<string, { Icon: LucideIcon; bg: string; color: string }> = {
   VIVIENDA: { Icon: Home, bg: theme.colors.primaryTint, color: theme.colors.primary },
   BONOS_ESTATALES: { Icon: Gift, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
+  BONOS_Y_PENSIONES: { Icon: Gift, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
+  CAPACITACION_Y_EMPLEO: { Icon: Briefcase, bg: theme.colors.primaryTint, color: theme.colors.primary },
   SALUD_Y_CUIDADOS: { Icon: Heart, bg: theme.colors.primaryTint, color: theme.colors.primary },
   SALUD: { Icon: Heart, bg: theme.colors.primaryTint, color: theme.colors.primary },
   NINEZ_Y_ADOLESCENCIA: { Icon: Baby, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },

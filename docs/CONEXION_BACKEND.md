@@ -49,9 +49,9 @@ Para usar beneficios, aplicaciones y perfil contra el backend necesitas un `user
 
 Si no defines `EXPO_PUBLIC_DEV_USER_ID`, la app usa el id `anonymous-dev`; el backend debe reconocerlo o devolverá 404 en rutas que requieran usuario.
 
-## Usar datos reales en lugar de mock
+## Lista de beneficios
 
-En `src/screens/BenefitsScreen.tsx` (y donde aplique) pon `USE_MOCK_FOR_TESTING = false` para que la lista de beneficios y el estado de postulaciones vengan del backend.
+Por defecto la app usa el API `GET /benefits/:userId/match`. Si la petición falla (red, 401, etc.) se muestra el mensaje "No pudimos cargar los beneficios. Tira para reintentar." y se puede reintentar con pull-to-refresh o el botón Reintentar.
 
 ## Resumen rápido
 

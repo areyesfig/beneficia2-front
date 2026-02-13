@@ -1,14 +1,15 @@
 /**
  * Mapeo de categorías: ENUM del backend → etiqueta e icono para la UI.
- * Iconos SVG (Lucide) por ui-ux-pro-max: no emojis en UI.
+ * Iconos SVG (Lucide). Debe coincidir con BenefitCategory en el backend.
  */
 export const BENEFIT_CATEGORIES = [
   { id: 'ALL', label: 'Todo', iconKey: 'Flame' as const },
-  { id: 'BONOS_ESTATALES', label: 'Bonos', iconKey: 'BadgeDollarSign' as const },
   { id: 'VIVIENDA', label: 'Vivienda', iconKey: 'Home' as const },
   { id: 'SALUD_Y_CUIDADOS', label: 'Salud', iconKey: 'HeartPulse' as const },
-  { id: 'NINEZ_Y_ADOLESCENCIA', label: 'Niñez', iconKey: 'Baby' as const },
   { id: 'JUVENTUD_Y_ESTUDIOS', label: 'Estudios', iconKey: 'GraduationCap' as const },
+  { id: 'BONOS_Y_PENSIONES', label: 'Pensiones', iconKey: 'BadgeDollarSign' as const },
+  { id: 'CAPACITACION_Y_EMPLEO', label: 'Empleo', iconKey: 'Briefcase' as const },
+  { id: 'NINEZ_Y_ADOLESCENCIA', label: 'Niñez', iconKey: 'Baby' as const },
   { id: 'ADULTO_MAYOR', label: 'Adulto Mayor', iconKey: 'User' as const },
   { id: 'EMPRENDIMIENTO', label: 'Negocios', iconKey: 'Rocket' as const },
 ] as const;
@@ -29,6 +30,7 @@ export function normalizeCategoryForFilter(backendCategory: string | undefined):
   const alias: Record<string, string> = {
     EDUCACION: 'JUVENTUD_Y_ESTUDIOS',
     SALUD: 'SALUD_Y_CUIDADOS',
+    BONOS_ESTATALES: 'BONOS_Y_PENSIONES',
   };
   return alias[upper] ?? upper;
 }

@@ -142,8 +142,8 @@ function getUserId(): string {
   return getCurrentUserId() ?? ANONYMOUS_DEV_USER_ID;
 }
 
-/** Caché de matches: 5 min frescos, 30 min en memoria; sin refetch al montar o al volver a la app */
-const MATCHES_STALE_TIME_MS = 5 * 60 * 1000;
+/** Caché: 2 min frescos; al montar la pantalla se refetch para ver beneficios nuevos tras un scrape. */
+const MATCHES_STALE_TIME_MS = 2 * 60 * 1000;
 const MATCHES_GC_TIME_MS = 30 * 60 * 1000;
 
 export const useUserMatches = () => {
@@ -161,7 +161,7 @@ export const useUserMatches = () => {
     },
     staleTime: MATCHES_STALE_TIME_MS,
     gcTime: MATCHES_GC_TIME_MS,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 };
