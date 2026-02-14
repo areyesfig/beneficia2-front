@@ -29,7 +29,7 @@ const getApiUrl = (): string => {
   if (__DEV__) {
     const devHost =
       process.env.EXPO_PUBLIC_DEV_API_HOST ??
-      (Platform.OS === 'android' ? '10.0.2.2' : '192.168.68.107');
+      (Platform.OS === 'android' ? '10.0.2.2' : 'localhost');
     const port = process.env.EXPO_PUBLIC_DEV_API_PORT ?? '3000';
     return Platform.select({
       ios: `http://${devHost}:${port}`,

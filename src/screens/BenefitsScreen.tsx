@@ -25,7 +25,7 @@ import {
   normalizeCategoryForFilter,
   type BenefitCategoryId,
 } from "@/constants/categories";
-import { API_URL } from "@/config/api";
+import { apiClient } from "@/api";
 import { getCurrentUserId, ANONYMOUS_DEV_USER_ID } from "@/config/env";
 import { chipStyle } from "@/styles/screenStyles";
 import { theme } from "@/theme/theme";
@@ -90,11 +90,7 @@ export default function BenefitsScreen() {
 
   const handleAction = async (benefitId: string, status: "APPLIED" | "DISMISSED") => {
     try {
-      await fetch(`${API_URL}/applications/${userId}/status`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ benefitId, status }),
-      });
+      await apiClient.post(`/applications/${userId}/status`, { benefitId, status });
     } catch (e) {
       if (__DEV__) console.warn("Error guardando estado de postulación:", e);
     }
