@@ -143,19 +143,19 @@ export default function BenefitsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <VStack spacing={4} style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.md, paddingBottom: theme.spacing.lg }}>
-        <HStack spacing={theme.spacing.sm} style={{ justifyContent: "space-between" }}>
-          <Pressable onPress={() => router.back()} style={{ marginLeft: -theme.spacing.xs, padding: theme.spacing.sm }}>
+      <VStack spacing={theme.spacing.sm} style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg, paddingBottom: theme.spacing.md }}>
+        <HStack spacing={theme.spacing.sm} style={{ justifyContent: "space-between", alignItems: "center" }}>
+          <Pressable onPress={() => router.back()} style={{ marginLeft: -theme.spacing.xs, padding: theme.spacing.sm, minWidth: 44, minHeight: 44, justifyContent: "center" }}>
             <ChevronLeft size={26} strokeWidth={2} color={theme.colors.primaryDark} />
           </Pressable>
-          <Text style={[theme.typography.h3, { color: theme.colors.text }]} numberOfLines={1}>
+          <Text style={[theme.typography.h2, { color: theme.colors.text }]} numberOfLines={1}>
             Beneficios
           </Text>
-          <HStack spacing={theme.spacing.xs}>
+          <HStack spacing={theme.spacing.sm}>
             <Pressable
               onPress={() => setViewMode(viewMode === "list" ? "grid" : "list")}
               style={[
-                { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+                { width: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background },
                 chipStyle.rounded,
               ]}
               accessibilityRole="button"
@@ -169,7 +169,7 @@ export default function BenefitsScreen() {
             </Pressable>
             <View
               style={[
-                { width: 40, height: 40, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.primary },
+                { width: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.primary },
                 chipStyle.rounded,
               ]}
             >
@@ -177,12 +177,12 @@ export default function BenefitsScreen() {
             </View>
           </HStack>
         </HStack>
-        <Text style={[theme.typography.body, { color: theme.colors.textSecondary, paddingHorizontal: theme.spacing.xs }]}>
+        <Text style={[theme.typography.body, { color: theme.colors.textSecondary, marginTop: 2 }]}>
           Para tu perfil
         </Text>
       </VStack>
 
-      <View style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface, paddingTop: theme.spacing.sm, paddingBottom: theme.spacing.md }}>
+      <View style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface, paddingVertical: theme.spacing.md }}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -191,8 +191,8 @@ export default function BenefitsScreen() {
             paddingRight: theme.spacing.xl,
             flexDirection: "row",
             alignItems: "center",
-            gap: theme.spacing.sm,
-            minHeight: 44,
+            gap: 12,
+            minHeight: 48,
           }}
         >
           {BENEFIT_CATEGORIES.map((category) => {
@@ -205,12 +205,12 @@ export default function BenefitsScreen() {
                 style={[
                   {
                     height: 44,
-                    minWidth: 80,
+                    minWidth: 88,
                     paddingHorizontal: theme.spacing.md,
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 6,
+                    gap: 8,
                     backgroundColor: isActive ? theme.colors.primary : theme.colors.background,
                   },
                   chipStyle.rounded,
@@ -236,7 +236,7 @@ export default function BenefitsScreen() {
         </ScrollView>
       </View>
 
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, paddingTop: theme.spacing.sm }}>
         {viewMode === "grid" ? (
           <BenefitsGrid
             data={filteredBenefits}

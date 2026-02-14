@@ -20,7 +20,7 @@ interface BenefitsFeedProps {
 
 export function BenefitsFeed({ data, onPostular, onAction, onCompletarPerfil, ListEmptyComponent, refreshControl }: BenefitsFeedProps) {
   const renderItem = ({ item }: { item: BenefitItem }) => (
-    <View style={{ marginBottom: theme.spacing.lg }}>
+    <View style={{ marginBottom: theme.spacing.xl }}>
       <BenefitCard
         id={item.id}
         title={item.title}
@@ -42,9 +42,9 @@ export function BenefitsFeed({ data, onPostular, onAction, onCompletarPerfil, Li
     <FlashList
       data={data}
       renderItem={renderItem}
-      estimatedItemSize={140}
+      estimatedItemSize={280}
       keyExtractor={(item, index) => item.id ? `${item.id}` : `${item.title}-${index}`}
-      contentContainerStyle={{ paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg, paddingBottom: 32 }}
+      contentContainerStyle={{ paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg, paddingBottom: 48 }}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={ListEmptyComponent}
       refreshControl={refreshControl}

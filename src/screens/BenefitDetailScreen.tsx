@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
-import { ChevronLeft, Check, AlertTriangle, X, CheckCircle2, CircleAlert } from "lucide-react-native";
+import { ChevronLeft, Check, AlertTriangle, X, CheckCircle2, CircleAlert, Calendar } from "lucide-react-native";
 import React, { useLayoutEffect } from "react";
 import {
   View,
@@ -96,11 +96,47 @@ export default function BenefitDetailScreen() {
   const displayName = benefit?.name ?? fallbackTitle ?? 'Beneficio';
   const displayInstitution = benefit?.institution ?? fallbackInstitution;
   const displayDescription = benefit?.description ?? fallbackDescription ?? 'Sin descripción disponible.';
-  const displayDeadline = benefit?.closesAt ?? fallbackDeadline ?? '--';
+
+  const formatDate = (iso: string | null | undefined): string => {
+    if (!iso) return '--';
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '--';
+      return d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+      return iso;
+    }
+  };
+  const opensAtFormatted = formatDate(benefit?.opensAt);
+  const closesAtFormatted = benefit?.closesAt != null ? formatDate(benefit.closesAt) : (fallbackDeadline ?? '--');
+  const hasDates = opensAtFormatted !== '--' || closesAtFormatted !== '--';
+
+  const now = new Date();
+  const opensAtDate = benefit?.opensAt ? new Date(benefit.opensAt) : null;
+  const closesAtDate = benefit?.closesAt ? new Date(benefit.closesAt) : null;
+  let applicationOpen: boolean | null = null;
+  if (opensAtDate ?? closesAtDate) {
+    if (opensAtDate && closesAtDate) {
+      applicationOpen = now >= opensAtDate && now <= closesAtDate;
+    } else if (closesAtDate) {
+      applicationOpen = now <= closesAtDate;
+    } else {
+      applicationOpen = now >= opensAtDate!;
+    }
+  }
+  const applicationStatusLabel =
+    applicationOpen === true ? 'Postulación abierta' : applicationOpen === false ? 'Postulación cerrada' : null;
+
+  const hasUrlApply = (benefit?.urlApply ?? '').trim().length > 0;
+  const isPostulable = match != null ? hasUrlApply : true;
 
   const handlePrimaryAction = async () => {
+    if (!isPostulable) {
+      router.back();
+      return;
+    }
     if (isEligible) {
-      const urlToOpen = benefit?.urlApply?.trim() || "https://www.google.cl";
+      const urlToOpen = benefit?.urlApply?.trim() || "";
       const opened = await openSafeUrl(urlToOpen);
       if (!opened) {
         Alert.alert("Error", "No se pudo abrir el enlace de postulación.");
@@ -109,6 +145,12 @@ export default function BenefitDetailScreen() {
       router.push("/wizard");
     }
   };
+
+  const primaryButtonLabel = !isPostulable
+    ? "Entendido"
+    : isEligible
+      ? "Ir a Postular"
+      : "Actualizar mis datos";
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -167,6 +209,22 @@ export default function BenefitDetailScreen() {
           {displayName}
         </Text>
 
+        {!isPostulable ? (
+          <View style={[{ marginBottom: theme.spacing.lg, backgroundColor: theme.colors.surface, padding: theme.spacing.xl, borderWidth: 1, borderColor: theme.colors.border }, cardStyle.wrapper, cardStyle.shadow]}>
+            <VStack spacing={theme.spacing.md} style={{ alignItems: "center" }}>
+              <View style={[{ width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.primaryTint }]}>
+                <Check size={28} color={theme.colors.primaryDark} strokeWidth={2.5} />
+              </View>
+              <Text style={[theme.typography.h3, { color: theme.colors.text, textAlign: "center" }]}>
+                A este beneficio no se postula
+              </Text>
+              <Text style={[theme.typography.body, { color: theme.colors.textSecondary, textAlign: "center", lineHeight: 24 }]}>
+                Se asigna o entrega directamente según tu situación y los registros del Estado, sin trámite de postulación.
+              </Text>
+            </VStack>
+          </View>
+        ) : null}
+
         {displayInstitution ? (
           <View
             style={[
@@ -175,6 +233,50 @@ export default function BenefitDetailScreen() {
             ]}
           >
             <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>{displayInstitution}</Text>
+          </View>
+        ) : null}
+
+        {hasDates ? (
+          <View style={[{ marginBottom: theme.spacing.lg, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
+            <HStack spacing={theme.spacing.sm} style={{ marginBottom: theme.spacing.sm, alignItems: "center" }}>
+              <Calendar size={20} color={theme.colors.primary} strokeWidth={2} />
+              <Text style={[theme.typography.h3, { color: theme.colors.text }]}>Fechas de postulación</Text>
+            </HStack>
+            <VStack spacing={theme.spacing.xs}>
+              {applicationStatusLabel != null && (
+                <View
+                  style={[
+                    {
+                      alignSelf: 'flex-start',
+                      paddingHorizontal: theme.spacing.sm,
+                      paddingVertical: 6,
+                      backgroundColor: applicationOpen ? theme.colors.successTint : theme.colors.warningTint,
+                      marginBottom: theme.spacing.xs,
+                    },
+                    cardStyle.wrapper,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      theme.typography.label,
+                      { color: applicationOpen ? theme.colors.successText : theme.colors.warningText, fontWeight: '600' },
+                    ]}
+                  >
+                    {applicationStatusLabel}
+                  </Text>
+                </View>
+              )}
+              {opensAtFormatted !== '--' && (
+                <Text style={[theme.typography.body, { color: theme.colors.textSecondary }]}>
+                  Inicio: {opensAtFormatted}
+                </Text>
+              )}
+              {closesAtFormatted !== '--' && (
+                <Text style={[theme.typography.body, { color: theme.colors.textSecondary }]}>
+                  Cierre: {closesAtFormatted}
+                </Text>
+              )}
+            </VStack>
           </View>
         ) : null}
 
@@ -300,7 +402,7 @@ export default function BenefitDetailScreen() {
           ]}
         >
           <Text style={[theme.typography.label, { color: "#fff" }]}>
-            {isEligible ? "Ir a Postular" : "Actualizar mis datos"}
+            {primaryButtonLabel}
           </Text>
         </AnimatedPressableScale>
       </View>

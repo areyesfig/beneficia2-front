@@ -61,31 +61,31 @@ export function BenefitCardCompact({
 
   const content = (
     <>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: theme.spacing.xs }}>
-        <View style={[{ width: 36, height: 36, borderRadius: theme.borderRadius.md, backgroundColor: bg, alignItems: "center", justifyContent: "center" }, cardStyle.wrapper]}>
-          <Icon size={18} color={color} strokeWidth={2} />
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: theme.spacing.sm }}>
+        <View style={[{ width: 40, height: 40, borderRadius: theme.borderRadius.lg, backgroundColor: bg, alignItems: "center", justifyContent: "center" }, cardStyle.wrapper]}>
+          <Icon size={20} color={color} strokeWidth={2} />
         </View>
         <Text style={[theme.typography.caption, { fontWeight: "600", color: isEligible ? theme.colors.successText : theme.colors.warningText }]}>
           {isEligible ? "Disponible" : "Falta info"}
         </Text>
       </View>
-      <Text style={[theme.typography.label, { color: theme.colors.text }]} numberOfLines={2}>
+      <Text style={[theme.typography.label, { color: theme.colors.text, lineHeight: 20 }]} numberOfLines={2}>
         {title}
       </Text>
-      <Text style={[theme.typography.bodySmall, { fontWeight: "600", color: theme.colors.primaryDark }]}>
+      <Text style={[theme.typography.bodySmall, { fontWeight: "600", color: theme.colors.primaryDark, marginTop: theme.spacing.xs }]}>
         {formatCurrency(amount)}
       </Text>
-      <Text style={[theme.typography.caption, { color: theme.colors.textSecondary, marginTop: 2 }]}>
+      <Text style={[theme.typography.caption, { color: theme.colors.textSecondary, marginTop: theme.spacing.xs }]}>
         Vence: {deadline}
       </Text>
-      <View style={{ position: "absolute", right: theme.spacing.sm, bottom: theme.spacing.sm }}>
+      <View style={{ position: "absolute", right: theme.spacing.md, bottom: theme.spacing.md }}>
         <ChevronRight size={20} color={theme.colors.textSecondary} strokeWidth={2} />
       </View>
     </>
   );
 
   const cardStyleInner = [
-    { backgroundColor: theme.colors.surface, padding: theme.spacing.md, minHeight: 140 },
+    { backgroundColor: theme.colors.surface, padding: theme.spacing.lg, minHeight: 168 },
     cardStyle.wrapper,
     cardStyle.shadow,
   ];

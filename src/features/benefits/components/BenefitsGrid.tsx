@@ -24,18 +24,19 @@ export function BenefitsGrid({ data, onPostular, onAction, onCompletarPerfil, Li
   }
 
   const [featured, ...rest] = data;
-  const gap = theme.spacing.sm;
+  const gap = theme.spacing.md;
   const paddingH = theme.spacing.lg;
-  const paddingV = theme.spacing.lg;
+  const paddingTop = theme.spacing.lg;
+  const paddingBottom = 48;
 
   return (
     <ScrollView
-      contentContainerStyle={{ paddingHorizontal: paddingH, paddingTop: paddingV, paddingBottom: 32 }}
+      contentContainerStyle={{ paddingHorizontal: paddingH, paddingTop, paddingBottom }}
       showsVerticalScrollIndicator={false}
       refreshControl={refreshControl}
     >
       {featured && (
-        <View style={{ marginBottom: gap }}>
+        <View style={{ marginBottom: gap + 4 }}>
           <BenefitCard
             id={featured.id}
             title={featured.title}
@@ -55,7 +56,7 @@ export function BenefitsGrid({ data, onPostular, onAction, onCompletarPerfil, Li
 
       <View style={{ flexDirection: "row", flexWrap: "wrap", marginHorizontal: -gap / 2 }}>
         {rest.map((item, index) => (
-          <View key={item.id ?? `${item.title}-${index}`} style={{ width: "50%", padding: gap / 2 }}>
+          <View key={item.id ?? `${item.title}-${index}`} style={{ width: "50%", padding: gap / 2, paddingBottom: gap }}>
             <BenefitCardCompact
               id={item.id}
               title={item.title}

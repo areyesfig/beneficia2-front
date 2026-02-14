@@ -93,20 +93,20 @@ export function BenefitCard({
 
   const cardContent = (
     <>
-      <HStack spacing={theme.spacing.sm} style={{ justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
+      <HStack spacing={theme.spacing.sm} style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.lg }}>
         <View
           style={[
-            { width: 40, height: 40, borderRadius: theme.borderRadius.full, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' },
+            { width: 48, height: 48, borderRadius: theme.borderRadius.full, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' },
             cardStyle.wrapper,
           ]}
         >
-          <Icon size={22} color={color} strokeWidth={2} />
+          <Icon size={24} color={color} strokeWidth={2} />
         </View>
         <View
           style={[
             {
-              paddingHorizontal: theme.spacing.sm,
-              paddingVertical: theme.spacing.xs,
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.sm,
               borderRadius: theme.borderRadius.full,
               backgroundColor: isEligible ? theme.colors.successTint : theme.colors.warningTint,
             },
@@ -119,20 +119,20 @@ export function BenefitCard({
               { fontWeight: '600', color: isEligible ? theme.colors.successText : theme.colors.warningText },
             ]}
           >
-            {isEligible ? '✅ Elegible' : '⚠️ Falta info'}
+            {isEligible ? 'Elegible' : 'Falta info'}
           </Text>
         </View>
       </HStack>
 
-      <Text style={[theme.typography.h3, { color: theme.colors.text }]} numberOfLines={2}>
+      <Text style={[theme.typography.h3, { color: theme.colors.text, lineHeight: 28 }]} numberOfLines={2}>
         {title}
       </Text>
       {teFaltaLine ? (
-        <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary, marginTop: theme.spacing.xs }]} numberOfLines={2}>
+        <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]} numberOfLines={2}>
           {teFaltaLine}
         </Text>
       ) : null}
-      <Text style={[theme.typography.h2, { color: theme.colors.primaryDark, marginTop: theme.spacing.sm }]}>
+      <Text style={[theme.typography.h2, { color: theme.colors.primaryDark, marginTop: theme.spacing.md }]}>
         {formatCurrency(amount)}
       </Text>
       <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary, marginTop: theme.spacing.xs }]}>
@@ -140,7 +140,7 @@ export function BenefitCard({
       </Text>
 
       {!isEligible && (
-        <VStack spacing={theme.spacing.xs} style={{ marginTop: theme.spacing.md }}>
+        <VStack spacing={theme.spacing.xs} style={{ marginTop: theme.spacing.lg }}>
           <View
             style={[
               { height: 6, width: '100%', overflow: 'hidden', borderRadius: theme.borderRadius.full, backgroundColor: theme.colors.border },
@@ -156,11 +156,11 @@ export function BenefitCard({
       )}
 
       {showActionBar ? (
-        <HStack spacing={12} style={{ marginTop: theme.spacing.md, paddingTop: theme.spacing.md, borderTopWidth: 1, borderTopColor: theme.colors.border }}>
+        <HStack spacing={theme.spacing.md} style={{ marginTop: theme.spacing.lg, paddingTop: theme.spacing.lg, borderTopWidth: 1, borderTopColor: theme.colors.border }}>
           <Pressable
             onPress={() => onAction(id!, 'DISMISSED')}
             style={[
-              { flex: 1, paddingVertical: theme.spacing.sm, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.background },
+              { flex: 1, minHeight: 48, paddingVertical: theme.spacing.md, justifyContent: 'center', borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.background },
               buttonStyle.rounded,
             ]}
           >
@@ -170,7 +170,7 @@ export function BenefitCard({
             <Pressable
               onPress={onCompletarPerfil}
               style={[
-                { flex: 1, paddingVertical: theme.spacing.sm, backgroundColor: theme.colors.primary },
+                { flex: 1, minHeight: 48, paddingVertical: theme.spacing.md, justifyContent: 'center', backgroundColor: theme.colors.primary },
                 buttonStyle.rounded,
                 buttonStyle.shadowPrimary,
               ]}
@@ -181,25 +181,25 @@ export function BenefitCard({
             <Pressable
               onPress={handleApply}
               style={[
-                { flex: 1, paddingVertical: theme.spacing.sm, backgroundColor: theme.colors.primary },
+                { flex: 1, minHeight: 48, paddingVertical: theme.spacing.md, justifyContent: 'center', backgroundColor: theme.colors.primary },
                 buttonStyle.rounded,
                 buttonStyle.shadowPrimary,
               ]}
             >
-              <Text style={[theme.typography.label, { textAlign: 'center', fontWeight: '700', color: '#fff' }]}>Postular 🚀</Text>
+              <Text style={[theme.typography.label, { textAlign: 'center', fontWeight: '700', color: '#fff' }]}>Postular</Text>
             </Pressable>
           )}
         </HStack>
       ) : (
-        <View style={{ marginTop: theme.spacing.md, flexDirection: 'row', justifyContent: 'flex-end' }}>
-          <ChevronRight size={20} color={theme.colors.textSecondary} strokeWidth={2} />
+        <View style={{ marginTop: theme.spacing.lg, flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <ChevronRight size={22} color={theme.colors.textSecondary} strokeWidth={2} />
         </View>
       )}
     </>
   );
 
   const cardWrapperStyle = [
-    { overflow: 'hidden', backgroundColor: theme.colors.surface, padding: theme.spacing.lg },
+    { overflow: 'hidden', backgroundColor: theme.colors.surface, padding: theme.spacing.xl },
     cardStyle.wrapper,
     cardStyle.shadow,
   ];
