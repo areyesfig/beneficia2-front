@@ -110,6 +110,29 @@ const MISSING_FIELD_LABELS: Record<string, string> = {
   hasDisability: 'Credencial discapacidad',
 };
 
+/**
+ * Detecta si un beneficio tiene "sin reglas definidas"
+ * Estos beneficios deben tratarse como no postulables
+ */
+function hasNoRulesDefined(match: MatchResult): boolean {
+  // Opción 1: Verificar missingReqs
+  const hasNoRulesInReqs = match.match?.missingReqs?.some(
+    (req) => req.key === 'requirements' && req.label === 'Sin reglas definidas'
+  );
+
+  // Opción 2: Verificar explanation.missingFacts
+  const hasNoRulesInFacts = match.match?.explanation?.missingFacts?.some(
+    (fact) => fact.key === 'requirements' && fact.label === 'Sin reglas definidas'
+  );
+
+  // Opción 3: Verificar explanation.notes
+  const hasNoRulesInNotes = match.match?.explanation?.notes?.includes(
+    'Sin reglas definidas'
+  );
+
+  return hasNoRulesInReqs || hasNoRulesInFacts || hasNoRulesInNotes;
+}
+
 function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
   const b = match.benefit;
   const title = (b.name?.trim()) || 'Beneficio';
@@ -127,6 +150,9 @@ function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
     ? missingReqs.map((r) => r.label)
     : missingFields.map((k) => MISSING_FIELD_LABELS[k] ?? k);
 
+  // Detectar si es no postulable o sin reglas definidas
+  const isNotApplicable = (b.requiresApplication === false) || hasNoRulesDefined(match);
+
   return {
     id: b.id,
     title,
@@ -137,6 +163,7 @@ function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
     category,
     urlApply,
     missingLabels,
+    requiresApplication: !isNotApplicable,
   };
 }
 

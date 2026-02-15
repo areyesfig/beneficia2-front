@@ -27,10 +27,15 @@ const getApiUrl = (): string => {
   }
   // Solo desarrollo local: emulador Android usa 10.0.2.2 para alcanzar el host; resto usa EXPO_PUBLIC_DEV_API_HOST
   if (__DEV__) {
+    // TEMPORAL: IP hardcodeada para debugging
+    // TODO: Revertir cuando .env funcione correctamente
     const devHost =
       process.env.EXPO_PUBLIC_DEV_API_HOST ??
-      (Platform.OS === 'android' ? '10.0.2.2' : 'localhost');
+      '192.168.68.102'; // Hardcodeado temporalmente
     const port = process.env.EXPO_PUBLIC_DEV_API_PORT ?? '3000';
+
+    console.log('🌐 DEV API Config:', { devHost, port, Platform: Platform.OS });
+
     return Platform.select({
       ios: `http://${devHost}:${port}`,
       android: `http://${devHost}:${port}`,

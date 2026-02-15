@@ -128,11 +128,38 @@ export default function BenefitDetailScreen() {
     applicationOpen === true ? 'Postulación abierta' : applicationOpen === false ? 'Postulación cerrada' : null;
 
   const hasUrlApply = (benefit?.urlApply ?? '').trim().length > 0;
-  const isPostulable = match != null ? (benefit?.requiresApplication ?? true) : true;
+
+  // Detectar si un beneficio tiene "sin reglas definidas"
+  const hasNoRulesDefined = () => {
+    if (!match) return false;
+
+    // Opción 1: Verificar missingReqs
+    const hasNoRulesInReqs = missingReqs.some(
+      (req) => req.key === 'requirements' && req.label === 'Sin reglas definidas'
+    );
+
+    // Opción 2: Verificar explanation.missingFacts
+    const hasNoRulesInFacts = explanation?.missingFacts?.some(
+      (fact) => fact.key === 'requirements' && fact.label === 'Sin reglas definidas'
+    );
+
+    // Opción 3: Verificar explanation.notes
+    const hasNoRulesInNotes = explanation?.notes?.includes('Sin reglas definidas');
+
+    return hasNoRulesInReqs || hasNoRulesInFacts || hasNoRulesInNotes;
+  };
+
+  const isPostulable = match != null ? (benefit?.requiresApplication ?? true) && !hasNoRulesDefined() : true;
 
   const handlePrimaryAction = async () => {
     if (!isPostulable) {
-      router.back();
+      // Para beneficios no postulables, si hay URL, abrirla; si no, cerrar
+      const urlToOpen = benefit?.urlApply?.trim() || "";
+      if (urlToOpen) {
+        await openSafeUrl(urlToOpen);
+      } else {
+        router.back();
+      }
       return;
     }
     if (isEligible) {
@@ -147,7 +174,7 @@ export default function BenefitDetailScreen() {
   };
 
   const primaryButtonLabel = !isPostulable
-    ? "Entendido"
+    ? "Ver más información"
     : isEligible
       ? "Ver más información"
       : "Actualizar mis datos";
@@ -286,7 +313,7 @@ export default function BenefitDetailScreen() {
           </Text>
         </View>
 
-        {(explanation?.eligibleFacts?.length ?? 0) > 0 || (explanation?.missingFacts?.length ?? 0) > 0 ? (
+        {isPostulable && ((explanation?.eligibleFacts?.length ?? 0) > 0 || (explanation?.missingFacts?.length ?? 0) > 0) ? (
           <View style={[{ marginBottom: theme.spacing.xl, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
             <Text style={[theme.typography.h3, { color: theme.colors.text, marginBottom: theme.spacing.md }]}>
               Por qué te aparece
@@ -318,7 +345,7 @@ export default function BenefitDetailScreen() {
           </View>
         ) : null}
 
-        {missingReqs.length > 0 ? (
+        {isPostulable && missingReqs.length > 0 ? (
           <View style={[{ marginBottom: theme.spacing.xl, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
             <Text style={[theme.typography.h3, { color: theme.colors.text, marginBottom: theme.spacing.md }]}>
               Qué hacer
@@ -354,7 +381,7 @@ export default function BenefitDetailScreen() {
               ))}
             </VStack>
           </View>
-        ) : !isEligible && missingRequirements.length > 0 ? (
+        ) : isPostulable && !isEligible && missingRequirements.length > 0 ? (
           <View style={[{ marginBottom: theme.spacing.xl, backgroundColor: theme.colors.surface, padding: theme.spacing.lg }, cardStyle.wrapper, cardStyle.shadow]}>
             <Text style={[theme.typography.caption, { fontWeight: "700", marginBottom: theme.spacing.md, color: theme.colors.textSecondary, letterSpacing: 0.5 }]}>
               ¿Qué me falta?

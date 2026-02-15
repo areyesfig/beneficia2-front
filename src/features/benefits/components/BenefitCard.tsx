@@ -15,7 +15,6 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { formatCurrency } from '@/utils/format-currency';
-import { openSafeUrl } from '@/utils/safe-open-url';
 import { cardStyle, buttonStyle } from '@/styles/screenStyles';
 import { theme } from '@/theme/theme';
 import { VStack, HStack } from '@/theme/layout';
@@ -36,6 +35,8 @@ export interface BenefitCardProps {
   urlApply?: string | null;
   /** Labels para "Te falta: X, Y" (1-2 líneas) */
   missingLabels?: string[];
+  /** Indica si el beneficio requiere postulación activa (true) o es automático (false) */
+  requiresApplication?: boolean;
   onPostular?: () => void;
   onAction?: (benefitId: string, status: ApplicationActionStatus) => void;
   onCompletarPerfil?: () => void;
@@ -74,6 +75,7 @@ export function BenefitCard({
   category,
   urlApply,
   missingLabels,
+  requiresApplication = true,
   onPostular,
   onAction,
   onCompletarPerfil,
@@ -81,15 +83,10 @@ export function BenefitCard({
   const isEligible = status === 'ELIGIBLE';
   const hasMissing = (missingLabels?.length ?? 0) > 0;
   const { Icon, bg, color } = getCategoryStyle(category);
-  const showActionBar = onAction && id;
   const teFaltaLine = hasMissing
     ? `Te falta: ${missingLabels!.slice(0, 3).join(', ')}`
     : null;
-
-  const handleApply = async () => {
-    if (urlApply) await openSafeUrl(urlApply);
-    if (id) onAction?.(id, 'APPLIED');
-  };
+  const showInfoButton = !requiresApplication;
 
   const cardContent = (
     <>
@@ -155,41 +152,30 @@ export function BenefitCard({
         </VStack>
       )}
 
-      {showActionBar ? (
-        <HStack spacing={theme.spacing.md} style={{ marginTop: theme.spacing.lg, paddingTop: theme.spacing.lg, borderTopWidth: 1, borderTopColor: theme.colors.border }}>
+      {showInfoButton ? (
+        <View style={{ marginTop: theme.spacing.lg }}>
           <Pressable
-            onPress={() => onAction(id!, 'DISMISSED')}
             style={[
-              { flex: 1, minHeight: 48, paddingVertical: theme.spacing.md, justifyContent: 'center', borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.background },
+              {
+                minHeight: 48,
+                paddingVertical: theme.spacing.md,
+                paddingHorizontal: theme.spacing.lg,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: theme.colors.primary,
+                flexDirection: 'row',
+                gap: theme.spacing.xs,
+              },
               buttonStyle.rounded,
+              buttonStyle.shadowPrimary,
             ]}
           >
-            <Text style={[theme.typography.label, { textAlign: 'center', color: theme.colors.textSecondary }]}>Ocultar</Text>
+            <Text style={[theme.typography.label, { fontWeight: '700', color: '#fff' }]}>
+              Ver más información
+            </Text>
+            <ChevronRight size={20} color="#fff" strokeWidth={2.5} />
           </Pressable>
-          {hasMissing && onCompletarPerfil ? (
-            <Pressable
-              onPress={onCompletarPerfil}
-              style={[
-                { flex: 1, minHeight: 48, paddingVertical: theme.spacing.md, justifyContent: 'center', backgroundColor: theme.colors.primary },
-                buttonStyle.rounded,
-                buttonStyle.shadowPrimary,
-              ]}
-            >
-              <Text style={[theme.typography.label, { textAlign: 'center', fontWeight: '700', color: '#fff' }]}>Completar perfil</Text>
-            </Pressable>
-          ) : (
-            <Pressable
-              onPress={handleApply}
-              style={[
-                { flex: 1, minHeight: 48, paddingVertical: theme.spacing.md, justifyContent: 'center', backgroundColor: theme.colors.primary },
-                buttonStyle.rounded,
-                buttonStyle.shadowPrimary,
-              ]}
-            >
-              <Text style={[theme.typography.label, { textAlign: 'center', fontWeight: '700', color: '#fff' }]}>Postular</Text>
-            </Pressable>
-          )}
-        </HStack>
+        </View>
       ) : (
         <View style={{ marginTop: theme.spacing.lg, flexDirection: 'row', justifyContent: 'flex-end' }}>
           <ChevronRight size={22} color={theme.colors.textSecondary} strokeWidth={2} />
