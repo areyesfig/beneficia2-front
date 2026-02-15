@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { API_URL } from '@/config/api';
-import { getCurrentUserId, ANONYMOUS_DEV_USER_ID } from '@/config/env';
+import { apiClient } from '@/api/client';
+import { useAuthStore } from '@/features/auth/authStore';
 import type { BenefitItem } from '@/features/benefits/components/BenefitsFeed';
 import type { BenefitStatus } from '@/features/benefits/components/BenefitCard';
 
@@ -167,8 +166,8 @@ function mapMatchToBenefitItem(match: MatchResult): BenefitItem {
   };
 }
 
-function getUserId(): string {
-  return getCurrentUserId() ?? ANONYMOUS_DEV_USER_ID;
+function getUserId(): string | null {
+  return useAuthStore.getState().userId;
 }
 
 /** Caché: 2 min frescos; al montar la pantalla se refetch para ver beneficios nuevos tras un scrape. */
@@ -183,11 +182,12 @@ export const useUserMatches = () => {
       if (__DEV__) {
         console.log('📡 Fetching benefits match');
       }
-      const { data } = await axios.get<MatchResult[]>(
-        `${API_URL}/benefits/${userId}/match`
+      const { data } = await apiClient.get<MatchResult[]>(
+        `/benefits/${userId}/match`
       );
       return data;
     },
+    enabled: !!userId,
     staleTime: MATCHES_STALE_TIME_MS,
     gcTime: MATCHES_GC_TIME_MS,
     refetchOnMount: true,

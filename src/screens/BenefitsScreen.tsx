@@ -26,7 +26,7 @@ import {
   type BenefitCategoryId,
 } from "@/constants/categories";
 import { apiClient } from "@/api";
-import { getCurrentUserId, ANONYMOUS_DEV_USER_ID } from "@/config/env";
+import { useAuthStore } from "@/features/auth/authStore";
 import { chipStyle } from "@/styles/screenStyles";
 import { theme } from "@/theme/theme";
 import { VStack, HStack } from "@/theme/layout";
@@ -73,7 +73,7 @@ export default function BenefitsScreen() {
         ? mapped
         : [];
 
-  const userId = getCurrentUserId() ?? ANONYMOUS_DEV_USER_ID;
+  const userId = useAuthStore((s) => s.userId);
   const [profileName, setProfileName] = useState<string | null>(null);
 
   useEffect(() => {

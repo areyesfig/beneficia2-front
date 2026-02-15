@@ -78,8 +78,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       return pair.accessToken;
     } catch {
+      // Refresh falló: limpiar tokens y re-crear sesión guest
       await get().clearAuth();
-      return null;
+      await get().bootstrapAuth();
+      return get().accessToken;
     }
   },
 
