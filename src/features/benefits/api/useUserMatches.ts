@@ -13,6 +13,8 @@ export interface BenefitMatch {
   description?: string;
   institution?: string;
   urlApply?: string | null;
+  requiresApplication?: boolean;
+  noApplicationMessage?: string | null;
   category?: string;
   requirements?: {
     cutoff_date?: string;

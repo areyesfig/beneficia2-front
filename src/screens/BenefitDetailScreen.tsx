@@ -128,7 +128,7 @@ export default function BenefitDetailScreen() {
     applicationOpen === true ? 'Postulación abierta' : applicationOpen === false ? 'Postulación cerrada' : null;
 
   const hasUrlApply = (benefit?.urlApply ?? '').trim().length > 0;
-  const isPostulable = match != null ? hasUrlApply : true;
+  const isPostulable = match != null ? (benefit?.requiresApplication ?? true) : true;
 
   const handlePrimaryAction = async () => {
     if (!isPostulable) {
@@ -149,7 +149,7 @@ export default function BenefitDetailScreen() {
   const primaryButtonLabel = !isPostulable
     ? "Entendido"
     : isEligible
-      ? "Ir a Postular"
+      ? "Ver más información"
       : "Actualizar mis datos";
 
   return (
@@ -216,10 +216,10 @@ export default function BenefitDetailScreen() {
                 <Check size={28} color={theme.colors.primaryDark} strokeWidth={2.5} />
               </View>
               <Text style={[theme.typography.h3, { color: theme.colors.text, textAlign: "center" }]}>
-                A este beneficio no se postula
+                Este programa no es postulable
               </Text>
               <Text style={[theme.typography.body, { color: theme.colors.textSecondary, textAlign: "center", lineHeight: 24 }]}>
-                Se asigna o entrega directamente según tu situación y los registros del Estado, sin trámite de postulación.
+                {benefit?.noApplicationMessage ?? 'Se asigna o entrega directamente según tu situación y los registros del Estado, sin trámite de postulación.'}
               </Text>
             </VStack>
           </View>
