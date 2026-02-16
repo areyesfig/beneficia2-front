@@ -76,7 +76,13 @@ export function setupAuthInterceptors(config: AuthInterceptorsConfig): void {
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-      if (error.response?.status === 401 && !originalRequest._authRetry && authConfig) {
+      const isAuthRoute = originalRequest?.url?.startsWith('/auth/');
+      if (
+        error.response?.status === 401 &&
+        !originalRequest._authRetry &&
+        !isAuthRoute &&
+        authConfig
+      ) {
         originalRequest._authRetry = true;
         const newToken = await authConfig.refreshAndGetNewToken();
         if (newToken) {
