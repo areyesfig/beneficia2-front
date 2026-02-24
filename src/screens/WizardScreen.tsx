@@ -15,7 +15,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { getCurrentUserId } from "@/config/env";
 import { validateRut, formatRutInput } from "@/utils/rut-validator";
 import { theme } from "@/theme/theme";
@@ -411,18 +411,23 @@ export default function WizardScreen() {
           control={control}
           name="income"
           render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={[
-                theme.typography.body,
-                { fontSize: 20, width: "100%", borderRadius: theme.borderRadius.lg, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.surface, padding: theme.spacing.md, color: theme.colors.text },
-                buttonStyle.rounded,
-              ]}
-              placeholder="$ 0"
-              placeholderTextColor={theme.colors.textSecondary}
-              keyboardType="numeric"
-              value={value?.toString() ?? ""}
-              onChangeText={onChange}
-            />
+            <View style={[
+              { flexDirection: "row", alignItems: "center", width: "100%", borderRadius: theme.borderRadius.lg, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.surface },
+              buttonStyle.rounded,
+            ]}>
+              <Text style={[theme.typography.body, { fontSize: 20, fontWeight: "600", color: theme.colors.textSecondary, paddingLeft: theme.spacing.md }]}>$</Text>
+              <TextInput
+                style={[
+                  theme.typography.body,
+                  { fontSize: 20, flex: 1, padding: theme.spacing.md, paddingLeft: theme.spacing.sm, color: theme.colors.text },
+                ]}
+                placeholder="0"
+                placeholderTextColor={theme.colors.textSecondary}
+                keyboardType="numeric"
+                value={value?.toString() ?? ""}
+                onChangeText={onChange}
+              />
+            </View>
           )}
         />
       </View>
@@ -436,15 +441,6 @@ export default function WizardScreen() {
         style={{ flex: 1 }}
       >
         <View style={{ flex: 1, padding: theme.spacing.lg }}>
-          {/* Omitir y ir al inicio */}
-          <View style={{ marginBottom: theme.spacing.md, flexDirection: "row", justifyContent: "flex-end" }}>
-            <Link href="/home" asChild>
-              <TouchableOpacity>
-                <Text style={[theme.typography.label, { color: theme.colors.primary }]}>Omitir</Text>
-              </TouchableOpacity>
-            </Link>
-          </View>
-
           {/* Barra de progreso */}
           <View style={{ marginBottom: theme.spacing.xl, height: 8, overflow: "hidden", borderRadius: theme.borderRadius.full, backgroundColor: theme.colors.primaryTint }}>
             <View

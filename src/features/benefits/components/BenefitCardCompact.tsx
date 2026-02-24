@@ -1,51 +1,52 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { Link } from "expo-router";
 import {
   Home,
   Gift,
   Briefcase,
   CircleDollarSign,
-  ChevronRight,
   GraduationCap,
   Heart,
   Baby,
   User,
   Rocket,
+  CheckCircle2,
+  AlertCircle,
   type LucideIcon,
 } from "lucide-react-native";
+import Animated, { FadeInUp } from "react-native-reanimated";
 import { formatCurrency } from "@/utils/format-currency";
-import { cardStyle } from "@/styles/screenStyles";
-import { theme } from "@/theme/theme";
+import { theme, createShadow } from "@/theme/theme";
 import { AnimatedPressableScale } from "@/components/AnimatedPressable";
 import type { BenefitCardProps } from "./BenefitCard";
 
-const CATEGORY_ICON: Record<string, { Icon: LucideIcon; bg: string; color: string }> = {
-  VIVIENDA: { Icon: Home, bg: theme.colors.primaryTint, color: theme.colors.primary },
-  BONOS_ESTATALES: { Icon: Gift, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
-  BONOS_Y_PENSIONES: { Icon: Gift, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
-  CAPACITACION_Y_EMPLEO: { Icon: Briefcase, bg: theme.colors.primaryTint, color: theme.colors.primary },
-  SALUD_Y_CUIDADOS: { Icon: Heart, bg: theme.colors.primaryTint, color: theme.colors.primary },
-  SALUD: { Icon: Heart, bg: theme.colors.primaryTint, color: theme.colors.primary },
-  NINEZ_Y_ADOLESCENCIA: { Icon: Baby, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
-  JUVENTUD_Y_ESTUDIOS: { Icon: GraduationCap, bg: theme.colors.primaryTint, color: theme.colors.primary },
-  EDUCACION: { Icon: GraduationCap, bg: theme.colors.primaryTint, color: theme.colors.primary },
-  ADULTO_MAYOR: { Icon: User, bg: theme.colors.primaryTint, color: theme.colors.primaryDark },
-  EMPRENDIMIENTO: { Icon: Rocket, bg: theme.colors.primaryTint, color: theme.colors.primary },
-  default: { Icon: CircleDollarSign, bg: theme.colors.border, color: theme.colors.textSecondary },
+/* ── Category map (same palette as BenefitCard) ── */
+const CATEGORY_MAP: Record<
+  string,
+  { Icon: LucideIcon; bg: string; color: string; accent: string }
+> = {
+  VIVIENDA: { Icon: Home, bg: "#ede9fe", color: "#7c3aed", accent: "#7c3aed" },
+  BONOS_ESTATALES: { Icon: Gift, bg: "#fce7f3", color: "#db2777", accent: "#db2777" },
+  BONOS_Y_PENSIONES: { Icon: Gift, bg: "#fce7f3", color: "#db2777", accent: "#db2777" },
+  CAPACITACION_Y_EMPLEO: { Icon: Briefcase, bg: "#dbeafe", color: "#2563eb", accent: "#2563eb" },
+  SALUD_Y_CUIDADOS: { Icon: Heart, bg: "#fce4ec", color: "#e11d48", accent: "#e11d48" },
+  SALUD: { Icon: Heart, bg: "#fce4ec", color: "#e11d48", accent: "#e11d48" },
+  NINEZ_Y_ADOLESCENCIA: { Icon: Baby, bg: "#fff7ed", color: "#ea580c", accent: "#ea580c" },
+  JUVENTUD_Y_ESTUDIOS: { Icon: GraduationCap, bg: "#ecfdf5", color: "#059669", accent: "#059669" },
+  EDUCACION: { Icon: GraduationCap, bg: "#ecfdf5", color: "#059669", accent: "#059669" },
+  ADULTO_MAYOR: { Icon: User, bg: "#f0f9ff", color: "#0284c7", accent: "#0284c7" },
+  EMPRENDIMIENTO: { Icon: Rocket, bg: "#fef3c7", color: "#d97706", accent: "#d97706" },
+  default: { Icon: CircleDollarSign, bg: theme.colors.border, color: theme.colors.textSecondary, accent: theme.colors.textSecondary },
 };
 
-function getCategoryStyle(category?: string) {
-  if (!category) return CATEGORY_ICON.default;
+function getCat(category?: string) {
+  if (!category) return CATEGORY_MAP.default;
   const key = category.toUpperCase().replace(/\s+/g, "_");
-  return CATEGORY_ICON[key] ?? CATEGORY_ICON.default;
+  return CATEGORY_MAP[key] ?? CATEGORY_MAP.default;
 }
 
-/**
- * Card compacta para vista Bento/Grid (ui-ux-pro-max).
- * Solo navegación al detalle; touch target ≥44px.
- */
-const MAX_DESCRIPTION_PARAM_LENGTH = 800;
+const MAX_DESC_LEN = 800;
 
 export function BenefitCardCompact({
   id,
@@ -55,40 +56,59 @@ export function BenefitCardCompact({
   deadline,
   status,
   category,
+  index = 0,
 }: BenefitCardProps) {
   const isEligible = status === "ELIGIBLE";
-  const { Icon, bg, color } = getCategoryStyle(category);
+  const { Icon, bg, color, accent } = getCat(category);
 
   const content = (
-    <>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: theme.spacing.sm }}>
-        <View style={[{ width: 40, height: 40, borderRadius: theme.borderRadius.lg, backgroundColor: bg, alignItems: "center", justifyContent: "center" }, cardStyle.wrapper]}>
-          <Icon size={20} color={color} strokeWidth={2} />
+    <Animated.View entering={FadeInUp.delay(100 + index * 60).duration(350).springify()}>
+      {/* Icon + status dot */}
+      <View style={s.topRow}>
+        <View style={[s.iconCircle, { backgroundColor: bg }]}>
+          <Icon size={18} color={color} strokeWidth={2.2} />
         </View>
-        <Text style={[theme.typography.caption, { fontWeight: "600", color: isEligible ? theme.colors.successText : theme.colors.warningText }]}>
-          {isEligible ? "Disponible" : "Falta info"}
-        </Text>
+        <View
+          style={[
+            s.statusDot,
+            {
+              backgroundColor: isEligible
+                ? theme.colors.success
+                : theme.colors.warning,
+            },
+          ]}
+        />
       </View>
-      <Text style={[theme.typography.label, { color: theme.colors.text, lineHeight: 20 }]} numberOfLines={2}>
+
+      {/* Title */}
+      <Text style={s.title} numberOfLines={2}>
         {title}
       </Text>
-      <Text style={[theme.typography.bodySmall, { fontWeight: "600", color: theme.colors.primaryDark, marginTop: theme.spacing.xs }]}>
+
+      {/* Amount */}
+      <Text style={[s.amount, { color: accent }]}>
         {formatCurrency(amount)}
       </Text>
-      <Text style={[theme.typography.caption, { color: theme.colors.textSecondary, marginTop: theme.spacing.xs }]}>
-        Vence: {deadline}
-      </Text>
-      <View style={{ position: "absolute", right: theme.spacing.md, bottom: theme.spacing.md }}>
-        <ChevronRight size={20} color={theme.colors.textSecondary} strokeWidth={2} />
+
+      {/* Deadline + status label */}
+      <View style={s.bottomRow}>
+        <Text style={s.deadline} numberOfLines={1}>
+          {deadline}
+        </Text>
+        {isEligible ? (
+          <CheckCircle2 size={14} color={theme.colors.success} strokeWidth={2.2} />
+        ) : (
+          <AlertCircle size={14} color={theme.colors.warning} strokeWidth={2.2} />
+        )}
       </View>
-    </>
+    </Animated.View>
   );
 
-  const cardStyleInner = [
-    { backgroundColor: theme.colors.surface, padding: theme.spacing.lg, minHeight: 168 },
-    cardStyle.wrapper,
-    cardStyle.shadow,
-  ];
+  const wrappedContent = (
+    <View style={[s.card, s.cardShadow]}>
+      {content}
+    </View>
+  );
 
   if (id) {
     const descParam = description?.trim();
@@ -97,17 +117,90 @@ export function BenefitCardCompact({
       status,
       deadline: deadline ?? "",
       amount: amount != null ? String(amount) : "",
-      ...(descParam != null && descParam !== "" ? { description: descParam.length > MAX_DESCRIPTION_PARAM_LENGTH ? descParam.slice(0, MAX_DESCRIPTION_PARAM_LENGTH) + "…" : descParam } : {}),
+      ...(descParam
+        ? {
+            description:
+              descParam.length > MAX_DESC_LEN
+                ? descParam.slice(0, MAX_DESC_LEN) + "\u2026"
+                : descParam,
+          }
+        : {}),
     });
     const href = `/benefit/${id}?${query.toString()}`;
     return (
       <Link href={href} asChild>
-        <AnimatedPressableScale style={cardStyleInner} accessibilityRole="button" accessibilityLabel={title}>
-          {content}
+        <AnimatedPressableScale
+          accessibilityRole="button"
+          accessibilityLabel={title}
+        >
+          {wrappedContent}
         </AnimatedPressableScale>
       </Link>
     );
   }
 
-  return <View style={cardStyleInner}>{content}</View>;
+  return wrappedContent;
 }
+
+const s = StyleSheet.create({
+  card: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: 18,
+    padding: 14,
+    minHeight: 170,
+    justifyContent: "space-between",
+    ...(Platform.OS === "ios" && { borderCurve: "continuous" as const }),
+  },
+  cardShadow: {
+    ...createShadow(6, "#64748b"),
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+
+  title: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: theme.colors.text,
+    lineHeight: 19,
+    letterSpacing: -0.2,
+    marginBottom: 6,
+  },
+
+  amount: {
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: -0.3,
+    marginBottom: 8,
+  },
+
+  bottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  deadline: {
+    fontSize: 11,
+    color: theme.colors.textSecondary,
+    fontWeight: "500",
+    flex: 1,
+  },
+});

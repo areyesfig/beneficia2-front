@@ -1,6 +1,15 @@
 import { BenefitsFeed } from "@/features/benefits/components/BenefitsFeed";
 import type { BenefitItem } from "@/features/benefits/components/BenefitsFeed";
-import { View, Text, ActivityIndicator, Pressable, ScrollView, RefreshControl } from "react-native";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  RefreshControl,
+  StyleSheet,
+  Platform,
+} from "react-native";
 import { useRouter } from "expo-router";
 import {
   ChevronLeft,
@@ -15,10 +24,15 @@ import {
   Briefcase,
   LayoutGrid,
   List,
+  Search,
   type LucideIcon,
 } from "lucide-react-native";
 import { useState, useMemo, useEffect } from "react";
-import { useUserMatches, mapMatchesToBenefitItems } from "@/features/benefits/api/useUserMatches";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import {
+  useUserMatches,
+  mapMatchesToBenefitItems,
+} from "@/features/benefits/api/useUserMatches";
 import { getProfile } from "@/features/profile/api/profileApi";
 import {
   BENEFIT_CATEGORIES,
@@ -27,9 +41,7 @@ import {
 } from "@/constants/categories";
 import { apiClient } from "@/api";
 import { useAuthStore } from "@/features/auth/authStore";
-import { chipStyle } from "@/styles/screenStyles";
-import { theme } from "@/theme/theme";
-import { VStack, HStack } from "@/theme/layout";
+import { theme, createShadow } from "@/theme/theme";
 import { AnimatedPressableScale } from "@/components/AnimatedPressable";
 import { BenefitsGrid } from "@/features/benefits/components/BenefitsGrid";
 
@@ -45,7 +57,6 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
   Briefcase,
 };
 
-/** En true muestra 8 beneficios de prueba; en false usa los del API (GET /benefits/:userId/match). */
 const USE_MOCK_FOR_TESTING = false;
 
 const MOCK_BENEFITS: BenefitItem[] = [
@@ -61,9 +72,17 @@ const MOCK_BENEFITS: BenefitItem[] = [
 
 export default function BenefitsScreen() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<BenefitCategoryId>("ALL");
+  const [selectedCategory, setSelectedCategory] =
+    useState<BenefitCategoryId>("ALL");
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
-  const { data: matches, isLoading, isError, refetch, isRefetching } = useUserMatches();
+  const {
+    data: matches,
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useUserMatches();
+
   const mapped = mapMatchesToBenefitItems(matches);
   const allBenefits = USE_MOCK_FOR_TESTING
     ? MOCK_BENEFITS
@@ -84,15 +103,22 @@ export default function BenefitsScreen() {
     });
   }, [userId]);
 
-  const userInitial = profileName && profileName.length > 0
-    ? profileName.charAt(0).toUpperCase()
-    : "J";
+  const userInitial =
+    profileName && profileName.length > 0
+      ? profileName.charAt(0).toUpperCase()
+      : null;
 
-  const handleAction = async (benefitId: string, status: "APPLIED" | "DISMISSED") => {
+  const handleAction = async (
+    benefitId: string,
+    status: "APPLIED" | "DISMISSED"
+  ) => {
     try {
-      await apiClient.post(`/applications/${userId}/status`, { benefitId, status });
+      await apiClient.post(`/applications/${userId}/status`, {
+        benefitId,
+        status,
+      });
     } catch (e) {
-      if (__DEV__) console.warn("Error guardando estado de postulación:", e);
+      if (__DEV__) console.warn("Error guardando estado:", e);
     }
   };
 
@@ -104,127 +130,147 @@ export default function BenefitsScreen() {
     );
   }, [allBenefits, selectedCategory]);
 
+  const eligibleCount = filteredBenefits.filter(
+    (b) => b.status === "ELIGIBLE"
+  ).length;
+
   const isApiLoading = !USE_MOCK_FOR_TESTING && isLoading && !matches;
   const showErrorState = !USE_MOCK_FOR_TESTING && isError;
 
-  const listEmptyComponent = showErrorState ? (
-    <VStack spacing={theme.spacing.md} style={{ marginTop: theme.spacing.xl, alignItems: "center", paddingHorizontal: theme.spacing.lg, flex: 1 }}>
-      <Text style={{ fontSize: 48 }}>📡</Text>
-      <Text style={[theme.typography.body, { textAlign: "center", color: theme.colors.textSecondary }]}>
-        No pudimos cargar los beneficios. Tira para reintentar.
-      </Text>
-      <AnimatedPressableScale onPress={() => refetch()} style={{ marginTop: theme.spacing.md }}>
-        <Text style={[theme.typography.label, { fontWeight: "700", color: theme.colors.primary }]}>Reintentar</Text>
-      </AnimatedPressableScale>
-    </VStack>
-  ) : (
-    <VStack spacing={theme.spacing.md} style={{ marginTop: theme.spacing.xl, alignItems: "center", paddingHorizontal: theme.spacing.md }}>
-      <Text style={{ fontSize: 48 }}>🤷‍♂️</Text>
-      <Text style={[theme.typography.body, { textAlign: "center", color: theme.colors.textSecondary }]}>
-        No encontramos beneficios en esta categoría para tu perfil.
-      </Text>
-      <AnimatedPressableScale onPress={() => setSelectedCategory("ALL")} style={{ marginTop: theme.spacing.md }}>
-        <Text style={[theme.typography.label, { fontWeight: "700", color: theme.colors.primary }]}>Ver todos</Text>
-      </AnimatedPressableScale>
-    </VStack>
-  );
-
+  /* ── Loading state ── */
   if (isApiLoading) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background }}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
+      <View style={s.loadingWrap}>
+        <Animated.View entering={FadeIn.duration(300)} style={s.loadingInner}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text style={s.loadingText}>Buscando beneficios...</Text>
+        </Animated.View>
       </View>
     );
   }
 
+  /* ── Empty / error component ── */
+  const listEmptyComponent = showErrorState ? (
+    <Animated.View entering={FadeInDown.duration(400)} style={s.emptyWrap}>
+      <View style={s.emptyIconWrap}>
+        <Text style={{ fontSize: 44 }}>📡</Text>
+      </View>
+      <Text style={s.emptyTitle}>Sin conexión</Text>
+      <Text style={s.emptyDesc}>
+        No pudimos cargar los beneficios. Tira hacia abajo para reintentar.
+      </Text>
+      <AnimatedPressableScale onPress={() => refetch()} style={s.emptyButton}>
+        <Text style={s.emptyButtonText}>Reintentar</Text>
+      </AnimatedPressableScale>
+    </Animated.View>
+  ) : (
+    <Animated.View entering={FadeInDown.duration(400)} style={s.emptyWrap}>
+      <View style={s.emptyIconWrap}>
+        <Search size={36} color={theme.colors.textSecondary} strokeWidth={1.5} />
+      </View>
+      <Text style={s.emptyTitle}>Sin resultados</Text>
+      <Text style={s.emptyDesc}>
+        No encontramos beneficios en esta categoría para tu perfil.
+      </Text>
+      <AnimatedPressableScale
+        onPress={() => setSelectedCategory("ALL")}
+        style={s.emptyButton}
+      >
+        <Text style={s.emptyButtonText}>Ver todos</Text>
+      </AnimatedPressableScale>
+    </Animated.View>
+  );
+
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <VStack spacing={theme.spacing.sm} style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface, paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg, paddingBottom: theme.spacing.md }}>
-        <HStack spacing={theme.spacing.sm} style={{ justifyContent: "space-between", alignItems: "center" }}>
-          <Pressable onPress={() => router.back()} style={{ marginLeft: -theme.spacing.xs, padding: theme.spacing.sm, minWidth: 44, minHeight: 44, justifyContent: "center" }}>
-            <ChevronLeft size={26} strokeWidth={2} color={theme.colors.primaryDark} />
+    <View style={s.screen}>
+      {/* ── Header ── */}
+      <View style={s.header}>
+        <View style={s.headerTop}>
+          <Pressable
+            onPress={() => router.back()}
+            style={s.backButton}
+            accessibilityRole="button"
+            accessibilityLabel="Volver"
+          >
+            <ChevronLeft size={24} strokeWidth={2.2} color={theme.colors.text} />
           </Pressable>
-          <Text style={[theme.typography.h2, { color: theme.colors.text }]} numberOfLines={1}>
-            Beneficios
-          </Text>
-          <HStack spacing={theme.spacing.sm}>
+
+          <View style={s.headerCenter}>
+            <Text style={s.headerTitle}>Beneficios</Text>
+            <Text style={s.headerSubtitle}>
+              {filteredBenefits.length > 0
+                ? `${filteredBenefits.length} resultado${filteredBenefits.length !== 1 ? "s" : ""}${eligibleCount > 0 ? ` \u00b7 ${eligibleCount} elegible${eligibleCount !== 1 ? "s" : ""}` : ""}`
+                : "Para tu perfil"}
+            </Text>
+          </View>
+
+          <View style={s.headerRight}>
             <Pressable
-              onPress={() => setViewMode(viewMode === "list" ? "grid" : "list")}
-              style={[
-                { width: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background },
-                chipStyle.rounded,
-              ]}
+              onPress={() =>
+                setViewMode(viewMode === "list" ? "grid" : "list")
+              }
+              style={s.iconButton}
               accessibilityRole="button"
-              accessibilityLabel={viewMode === "list" ? "Ver en cuadrícula" : "Ver en lista"}
+              accessibilityLabel={
+                viewMode === "list" ? "Ver en cuadrícula" : "Ver en lista"
+              }
             >
               {viewMode === "list" ? (
-                <LayoutGrid size={22} color={theme.colors.primary} strokeWidth={2} />
+                <LayoutGrid
+                  size={20}
+                  color={theme.colors.primary}
+                  strokeWidth={2}
+                />
               ) : (
-                <List size={22} color={theme.colors.primary} strokeWidth={2} />
+                <List size={20} color={theme.colors.primary} strokeWidth={2} />
               )}
             </Pressable>
-            <View
-              style={[
-                { width: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.primary },
-                chipStyle.rounded,
-              ]}
-            >
-              <Text style={[theme.typography.label, { fontWeight: "700", color: "#fff" }]}>{userInitial}</Text>
+            <View style={s.avatar}>
+              {userInitial ? (
+                <Text style={s.avatarText}>{userInitial}</Text>
+              ) : (
+                <User size={18} color="#fff" strokeWidth={2.2} />
+              )}
             </View>
-          </HStack>
-        </HStack>
-        <Text style={[theme.typography.body, { color: theme.colors.textSecondary, marginTop: 2 }]}>
-          Para tu perfil
-        </Text>
-      </VStack>
+          </View>
+        </View>
+      </View>
 
-      <View style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, backgroundColor: theme.colors.surface, paddingVertical: theme.spacing.md }}>
+      {/* ── Category pills ── */}
+      <View style={s.filtersWrap}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: theme.spacing.lg,
-            paddingRight: theme.spacing.xl,
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 12,
-            minHeight: 48,
-          }}
+          contentContainerStyle={s.filtersScroll}
         >
-          {BENEFIT_CATEGORIES.map((category) => {
-            const isActive = selectedCategory === category.id;
-            const IconComponent = CATEGORY_ICONS[category.iconKey] ?? Flame;
+          {BENEFIT_CATEGORIES.map((cat) => {
+            const isActive = selectedCategory === cat.id;
+            const IconComp = CATEGORY_ICONS[cat.iconKey] ?? Flame;
             return (
               <AnimatedPressableScale
-                key={category.id}
-                onPress={() => setSelectedCategory(category.id)}
+                key={cat.id}
+                onPress={() => setSelectedCategory(cat.id)}
                 style={[
-                  {
-                    height: 44,
-                    minWidth: 88,
-                    paddingHorizontal: theme.spacing.md,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                    backgroundColor: isActive ? theme.colors.primary : theme.colors.background,
-                  },
-                  chipStyle.rounded,
-                  isActive && chipStyle.shadow,
+                  s.pill,
+                  isActive ? s.pillActive : s.pillInactive,
                 ]}
                 accessibilityRole="button"
-                accessibilityLabel={`Filtrar por ${category.label}`}
+                accessibilityLabel={`Filtrar por ${cat.label}`}
                 accessibilityState={{ selected: isActive }}
               >
-                <IconComponent size={18} color={isActive ? "#fff" : theme.colors.textSecondary} strokeWidth={2} />
+                <IconComp
+                  size={16}
+                  color={isActive ? "#fff" : theme.colors.textSecondary}
+                  strokeWidth={2}
+                />
                 <Text
                   numberOfLines={1}
                   style={[
-                    theme.typography.label,
+                    s.pillText,
                     { color: isActive ? "#fff" : theme.colors.textSecondary },
                   ]}
                 >
-                  {category.label}
+                  {cat.label}
                 </Text>
               </AnimatedPressableScale>
             );
@@ -232,34 +278,213 @@ export default function BenefitsScreen() {
         </ScrollView>
       </View>
 
-      <View style={{ flex: 1, paddingTop: theme.spacing.sm }}>
+      {/* ── Content ── */}
+      <View style={s.content}>
         {viewMode === "grid" ? (
           <BenefitsGrid
             data={filteredBenefits}
-            onPostular={(item) => item.id && router.push(`/benefit/${item.id}` as const)}
+            onPostular={(item) =>
+              item.id && router.push(`/benefit/${item.id}` as const)
+            }
             onAction={handleAction}
-            onCompletarPerfil={() => router.push('/wizard')}
+            onCompletarPerfil={() => router.push("/wizard")}
             refreshControl={
-              <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={() => refetch()}
+                tintColor={theme.colors.primary}
+              />
             }
             ListEmptyComponent={listEmptyComponent}
           />
         ) : (
           <BenefitsFeed
-          data={filteredBenefits}
-          onPostular={(item) => {
-            if (item.id) router.push(`/benefit/${item.id}` as const);
-          }}
-          onAction={handleAction}
-          onCompletarPerfil={() => router.push('/wizard')}
-          refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
-          }
-          ListEmptyComponent={listEmptyComponent}
-        />
+            data={filteredBenefits}
+            onPostular={(item) => {
+              if (item.id) router.push(`/benefit/${item.id}` as const);
+            }}
+            onAction={handleAction}
+            onCompletarPerfil={() => router.push("/wizard")}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={() => refetch()}
+                tintColor={theme.colors.primary}
+              />
+            }
+            ListEmptyComponent={listEmptyComponent}
+          />
         )}
       </View>
-
     </View>
   );
 }
+
+const s = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+
+  /* ── Header ── */
+  header: {
+    backgroundColor: theme.colors.surface,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  headerTop: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: theme.colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerCenter: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: theme.colors.text,
+    letterSpacing: -0.4,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: theme.colors.textSecondary,
+    marginTop: 1,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: theme.colors.primaryTint,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#fff",
+  },
+
+  /* ── Filters ── */
+  filtersWrap: {
+    backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    paddingVertical: 12,
+  },
+  filtersScroll: {
+    paddingHorizontal: 20,
+    gap: 8,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  pill: {
+    height: 38,
+    paddingHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    borderRadius: 20,
+    ...(Platform.OS === "ios" && { borderCurve: "continuous" as const }),
+  },
+  pillActive: {
+    backgroundColor: theme.colors.primary,
+    ...createShadow(3, theme.colors.primary),
+  },
+  pillInactive: {
+    backgroundColor: theme.colors.background,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  pillText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  /* ── Content ── */
+  content: {
+    flex: 1,
+  },
+
+  /* ── Loading ── */
+  loadingWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.background,
+  },
+  loadingInner: {
+    alignItems: "center",
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 15,
+    color: theme.colors.textSecondary,
+    fontWeight: "500",
+  },
+
+  /* ── Empty / Error ── */
+  emptyWrap: {
+    alignItems: "center",
+    paddingHorizontal: 32,
+    paddingTop: 60,
+  },
+  emptyIconWrap: {
+    width: 80,
+    height: 80,
+    borderRadius: 24,
+    backgroundColor: theme.colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: theme.colors.text,
+    marginBottom: 6,
+  },
+  emptyDesc: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  emptyButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    backgroundColor: theme.colors.primaryTint,
+    borderRadius: 12,
+  },
+  emptyButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: theme.colors.primary,
+  },
+});

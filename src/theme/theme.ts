@@ -11,7 +11,7 @@ export const theme = {
     secondary: "#818cf8",
     primaryTint: "#e0e7ff",
     primaryTintBorder: "#c7d2fe",
-    background: "#fafafa",
+    background: "#f0f0f5",
     surface: "#ffffff",
     text: "#1e1b4b",
     textSecondary: "#64748b",
@@ -56,7 +56,7 @@ export function createShadow(
   color: string = "#000000"
 ): ViewStyle {
   if (Platform.OS === "android") {
-    return { elevation };
+    return { elevation: Math.max(elevation, 3), shadowColor: color };
   }
   const shadowMap: Record<number, ViewStyle> = {
     1: {
@@ -73,9 +73,9 @@ export function createShadow(
     },
     4: {
       shadowColor: color,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.16,
-      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.22,
+      shadowRadius: 10,
     },
     8: {
       shadowColor: color,
